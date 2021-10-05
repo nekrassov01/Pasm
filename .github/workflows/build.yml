@@ -1,0 +1,36 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install required modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name PSScriptAnalyzer, Pester, PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser -SkipPublisherCheck -AllowClobber -Force
+          Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser -SkipPublisherCheck -AllowClobber -Force -CleanUp
+      - name: Configure AWS credentials
+        shell: pwsh
+        run: |
+          Set-AWSCredential -AccessKey ${{ secrets.AWS_ACCESS_KEY_ID }} -SecretKey ${{ secrets.AWS_SECRET_ACCESS_KEY }} -StoreAs default
+      - name: Run unit test
+        shell: pwsh
+        run: |
+          Invoke-Pester -Output Detailed -CI -PassThru
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: testResults
+          path: testResults.xml

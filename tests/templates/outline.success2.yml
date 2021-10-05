@@ -1,0 +1,151 @@
+Common:
+  Region: ap-northeast-1
+  ProfileName: default
+Resource:
+  SecurityGroup:
+  - ResourceName: test-sg-01
+    VpcId: temp-vpc
+    MaxEntry: 60
+    FlowDirection: Ingress
+    Description: test-sg-01 message
+    Rules:
+    - Id: 1
+      ServiceKey: S3
+      Region:
+      - ap-northeast-1
+      - ap-northeast-2
+      IpFormat:
+      - IPv4
+      Protocol: tcp
+      FromPort: 80
+      ToPort: 80
+    - Id: 2
+      ServiceKey: S3
+      Region:
+      - ap-northeast-1
+      - ap-northeast-2
+      IpFormat:
+      - IPv4
+      Protocol: tcp
+      FromPort: 443
+      ToPort: 443
+  - ResourceName: test-sg-02
+    VpcId: temp-vpc
+    MaxEntry: 60
+    FlowDirection: Ingress
+    Description: test-sg-02 message
+    Rules:
+    - Id: 1
+      ServiceKey: AMAZON_CONNECT
+      Region:
+      - ap-northeast-1
+      - ap-northeast-2
+      IpFormat:
+      - IPv4
+      - IPv6
+      Protocol: icmp
+      FromPort: -1
+      ToPort: -1
+    - Id: 2
+      ServiceKey: CLOUD9
+      Region:
+      - ap-northeast-1
+      - ap-northeast-2
+      IpFormat:
+      - IPv4
+      - IPv6
+      Protocol: icmpv6
+      FromPort: -1
+      ToPort: -1
+  NetworkAcl:
+  - ResourceName: test-acl-01
+    VpcId: temp-vpc
+    MaxEntry: 20
+    FlowDirection: Ingress
+    RuleNumber:
+      StartNumber: 100
+      Interval: 10
+    AssociationSubnetId:
+    - temp-subnet-az-a
+    - temp-subnet-az-c
+    Rules:
+    - Id: 1
+      ServiceKey: S3
+      Region:
+      - ap-northeast-1
+      IpFormat:
+      - IPv4
+      Protocol: tcp
+      FromPort: 80
+      ToPort: 80
+      EphemeralPort: true
+    - Id: 2
+      ServiceKey: S3
+      Region:
+      - ap-northeast-1
+      IpFormat:
+      - IPv4
+      Protocol: tcp
+      FromPort: 443
+      ToPort: 443
+      EphemeralPort: true
+  - ResourceName: test-acl-02
+    VpcId: temp-vpc
+    MaxEntry: 20
+    FlowDirection: Ingress
+    RuleNumber:
+      StartNumber: 100
+      Interval: 10
+    AssociationSubnetId:
+    - temp-subnet-az-a
+    - temp-subnet-az-c
+    Rules:
+    - Id: 1
+      ServiceKey: AMAZON_CONNECT
+      Region:
+      - ap-northeast-1
+      - ap-northeast-2
+      IpFormat:
+      - IPv4
+      - IPv6
+      Protocol: icmp
+      FromPort: -1
+      ToPort: -1
+    - Id: 2
+      ServiceKey: CLOUD9
+      Region:
+      - ap-northeast-1
+      - ap-northeast-2
+      IpFormat:
+      - IPv4
+      - IPv6
+      Protocol: icmpv6
+      FromPort: -1
+      ToPort: -1
+  PrefixList:
+  - ResourceName: test-pl-01
+    VpcId: temp-vpc
+    MaxEntry: 30
+    AddressFamily: IPv4
+    Rules:
+    - Id: 1
+      ServiceKey: S3
+      Region:
+      - ap-northeast-1
+    - Id: 2
+      ServiceKey: S3
+      Region:
+      - ap-northeast-2
+  - ResourceName: test-pl-02
+    VpcId: temp-vpc
+    MaxEntry: 30
+    AddressFamily: IPv6
+    Rules:
+    - Id: 1
+      ServiceKey: S3
+      Region:
+      - ap-northeast-1
+    - Id: 2
+      ServiceKey: S3
+      Region:
+      - ap-northeast-2
