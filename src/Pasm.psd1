@@ -51,9 +51,7 @@ ClrVersion = '4.0.0.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('PowerShell-Yaml', 
-               'AWS.Tools.Common', 
-               'AWS.Tools.EC2')
+# RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -120,11 +118,11 @@ PrivateData = @{
         # RequireLicenseAcceptance = $false
 
         # External dependent modules of this module
-        ExternalModuleDependencies = @('PowerShell-Yaml','AWS.Tools.Common','AWS.Tools.EC2')
+        ExternalModuleDependencies = 'PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2'
 
     } # End of PSData hashtable
 
- } # End of PrivateData hashtable
+} # End of PrivateData hashtable
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''

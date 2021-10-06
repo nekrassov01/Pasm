@@ -49,7 +49,7 @@ end {
         DotNetFrameworkVersion     = '4.5'
         ClrVersion                 = '4.0.0.0'
         CompatiblePSEditions       = @('Core', 'Desktop')
-       #RequiredModules            = @('PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
+       #RequiredModules            = @()
        #RequiredAssemblies         = @()
         ExternalModuleDependencies = @('PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
         CmdletsToExport            = @()
@@ -66,7 +66,7 @@ end {
     try {
         # Create or update manifest
         if (Test-Path -LiteralPath $modulePath) {
-            $moduleManifest.Remove('GUID')
+            $moduleManifest.Remove('Guid')
             Update-ModuleManifest @moduleManifest
         }
         else {

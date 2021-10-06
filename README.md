@@ -1,28 +1,35 @@
 [![build](https://github.com/nekrassov01/Pasm/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/nekrassov01/Pasm/actions/workflows/build.yml)
 
 # Pasm
-Pasm is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply following simple rules and creating YAML templates, you can keep up with IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.
- 
+Pasm is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply following simple rules and creating YAML templates, you can keep up with IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.  
+
 |Core|Desktop|
 |--|--|
 |:white_check_mark:|:white_check_mark:|
 
 ## Prerequisites for using Pasm 
-```ps1
-# Install the modules required to use Pasm
-Install-Module -Name PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser
-Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser
 
-# Set the AWS Credential
-Set-AWSCredential -AccessKey <AWS_ACCESS_KEY_ID> -SecretKey <AWS_SECRET_ACCESS_KEY> -StoreAs default
+Install the modules required to use Pasm.
+```ps1
+PS C:\> Install-Module -Name PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser
+PS C:\> Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser
+```  
+
+Set the AWS credential.
+```ps1
+PS C:\> Set-AWSCredential -AccessKey <AWS_ACCESS_KEY_ID> -SecretKey <AWS_SECRET_ACCESS_KEY> -StoreAs default
 ```
 
-## To install Pasm 
+## Install
+
+Install Pasm.
 ```ps1
-Install-Module -Name Pasm -Scope CurrentUser
+PS C:\> Install-Module -Name Pasm -Scope CurrentUser
 ```
 
-## Functions to Export
+## Functions
+
+
 |Function|Description|
 |--|--|
 |Invoke-PasmInitialize|Generate a working directory and a sample template.|
@@ -32,29 +39,39 @@ Install-Module -Name Pasm -Scope CurrentUser
 |Invoke-PasmAutomation|Run the following in order: ```Invoke-PasmValidation```, ```Invoke-PasmBlueprint```, ```Invoke-PasmDeproyment```.|
 
 ## Configuration Files
+
+The following are the default names. The function parameters ```FilePath```, and ```OutputFileName``` allow you to override names.
+
 |Name|Description|
 |--|--|
-|outline.yml|User-controlled configuration file. You can use ```Invoke-PasmInitialize``` to generate and edit a template, or create one manually from scratch.|
-|blueprint.yml|This is the configuration file that ```Invoke-PasmBlueprint``` generates by interpreting the outline.yml. The Rules section will be subdivided by IP range.|
+|outline.yml|The user-controlled configuration file. You can use ```Invoke-PasmInitialize``` to generate and edit a template, or create one manually from scratch.|
+|blueprint.yml|The configuration file that ```Invoke-PasmBlueprint``` generates by interpreting the outline.yml. The Rules section will be subdivided by IP range.|
 
 ## Initialization
-```ps1
-# A working directory will be created in the current directory and outline.yml will be created as a template.
-Invoke-PasmInitialize -Name 'Pasm'
 
+A working directory will be created in the current directory and outline.yml will be deployed as a sample template.
+```ps1 
+PS C:\> Invoke-PasmInitialize -Name 'Pasm'
+```
+```
 BaseDirectory TemplateFile
 ------------- ------------
 C:\Pasm       C:\Pasm\outline.yml
-
-# Move directory
-Push-Location -LiteralPath 'Pasm'
 ```
 
 ## Usage
-```ps1
-# Only the validator process can be called
-Invoke-PasmValidation -FilePath C:\Pasm\outline.yml
 
+Go to your working directory and edit 'outline.yml'.
+```ps1
+PS C:\> Push-Location -LiteralPath 'Pasm'
+PS C:\Pasm> code outline.yml
+```
+
+Only validator processing can be called.
+```ps1
+PS C:\Pasm> Invoke-PasmValidation -FilePath C:\Pasm\outline.yml
+```
+```
 Validation started: outline.yml
 Validation passed: Parent
 Validation passed: Common
@@ -70,17 +87,23 @@ Validation passed: PrefixList 'test-pl-01' Parent
 Validation passed: PrefixList 'test-pl-01' Rules
 Validation passed: PrefixList 'test-pl-01' VpcId
 Validation finished: outline.yml
+```
 
-# Blueprint file will be generated
-Invoke-PasmBlueprint -FilePath C:\Pasm\outline.yml -OutputFileName blueprint.yml
-
+Generate 'blueprint.yml' based on the settings in 'outline.yml'.
+```ps1
+PS C:\Pasm> Invoke-PasmBlueprint -FilePath C:\Pasm\outline.yml -OutputFileName blueprint.yml
+```
+```
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a---          2021/10/05    00:00          99999 blueprint.yml
+```
 
-# Deploy resources based on blueprint.yml
-Invoke-PasmDeployment -FilePath C:\Pasm\blueprint.yml
-
+Deploy resources based on the settings in 'blueprint.yml'.
+```ps1
+PS C:\Pasm> Invoke-PasmDeployment -FilePath C:\Pasm\blueprint.yml
+```
+```
  ResourceType ResourceName ResourceId            Action
  ------------ ------------ ----------            ------
 SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
@@ -88,11 +111,13 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
    PrefixList test-pl-01   pl-poilkjmnb159753az  Create
 ```
 
-## More Shorter
-```ps1
-# Run the following in order: Invoke-PasmValidation, Invoke-PasmBlueprint, Invoke-PasmDeproyment
-Invoke-PasmAutomation -FilePath C:\Pasm\outline.yml -OutputFileName blueprint.yml
+## Same Thing, Shorter
 
+Invoke-PasmAutomation runs the following in order: ```Invoke-PasmValidation```, ```Invoke-PasmBlueprint```, and ```Invoke-PasmDeproyment```.
+```ps1
+PS C:\Pasm> Invoke-PasmAutomation -FilePath C:\Pasm\outline.yml -OutputFileName blueprint.yml
+```
+```
  ResourceType ResourceName ResourceId            Action
  ------------ ------------ ----------            ------
 SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Sync
@@ -101,6 +126,7 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Sync
 ```
 
 ## Sample Template (outline.yml)
+
 ```yaml
 ### sample template ###
 Common:                             # required
@@ -181,5 +207,6 @@ Resource:                           # required
 ```
 
 ## To do
-- Implementing the cleanup process
-- Performance tuning
+
+- Implementing the cleanup process.
+- Performance tuning.
