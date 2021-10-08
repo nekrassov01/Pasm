@@ -103,8 +103,9 @@ Resource:                           # required
 '@
 
             $baseDir = New-Item -Path $path -Name $name -ItemType Directory -Force
-            $outputFilePath = $($baseDir.FullName, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join [path]::DirectorySeparatorChar)
-            $obj = [PSCustomObject]@{ BaseDirectory = $baseDir; TemplateFile = $outputFilePath }
+            $fileName = '{0}.yml' -f [Pasm.Template.Name]::outline
+            $outputFilePath = $baseDir.FullName, $fileName -join [path]::DirectorySeparatorChar
+            $obj = [PSCustomObject]@{ BaseDirectory = $baseDir; TemplateFile = $fileName }
 
             if (Test-Path -LiteralPath $baseDir.FullName) {
                 if (Test-Path -LiteralPath $outputFilePath) {
