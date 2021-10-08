@@ -29,6 +29,7 @@ PS C:\> Install-Module -Name Pasm -Scope CurrentUser
 
 ## Functions
 
+Module members.
 
 |Function|Description|
 |--|--|
@@ -36,7 +37,7 @@ PS C:\> Install-Module -Name Pasm -Scope CurrentUser
 |Invoke-PasmValidation|Parse the Yaml template to validate if it can be loaded.|
 |Invoke-PasmBlueprint|Get the ip ranges from [ip-ranges.json](https://ip-ranges.amazonaws.com/ip-ranges.json) as described in the Yaml template, and create a blueprint.|
 |Invoke-PasmDeployment|Read the blueprint and deploy resources.|
-|Invoke-PasmAutomation|Run the following in order: ```Invoke-PasmValidation```, ```Invoke-PasmBlueprint```, ```Invoke-PasmDeproyment```.|
+|Invoke-PasmAutomation|Run the following in order: <ol><li>```Invoke-PasmValidation```</li><li>```Invoke-PasmBlueprint```</li></li><li>```Invoke-PasmDeployment```</li></ol>|
 
 ## Configuration Files
 
@@ -45,11 +46,11 @@ The following are the default names. The function parameters ```FilePath```, and
 |Name|Description|
 |--|--|
 |outline.yml|The user-controlled configuration file. You can use ```Invoke-PasmInitialize``` to generate and edit a template, or create one manually from scratch.|
-|blueprint.yml|The configuration file that ```Invoke-PasmBlueprint``` generates by interpreting the outline.yml. The Rules section will be subdivided by IP range.|
+|blueprint.yml|The configuration file that ```Invoke-PasmBlueprint``` generates by interpreting the 'outline.yml'. The Rules section will be subdivided by IP range.|
 
 ## Initialization
 
-A working directory will be created in the current directory and outline.yml will be deployed as a sample template.
+A working directory will be created in the current directory and 'outline.yml' will be deployed as a sample template.
 ```ps1 
 PS C:\> Invoke-PasmInitialize -Name 'Pasm'
 ```
@@ -69,7 +70,7 @@ PS C:\Pasm> code outline.yml
 
 Only validator processing can be called.
 ```ps1
-PS C:\Pasm> Invoke-PasmValidation -FilePath C:\Pasm\outline.yml
+PS C:\Pasm> Invoke-PasmValidation -FilePath outline.yml
 ```
 ```
 Validation started: outline.yml
@@ -91,7 +92,7 @@ Validation finished: outline.yml
 
 Generate 'blueprint.yml' based on the settings in 'outline.yml'.
 ```ps1
-PS C:\Pasm> Invoke-PasmBlueprint -FilePath C:\Pasm\outline.yml -OutputFileName blueprint.yml
+PS C:\Pasm> Invoke-PasmBlueprint -FilePath outline.yml -OutputFileName blueprint.yml
 ```
 ```
 Mode                 LastWriteTime         Length Name
@@ -101,7 +102,7 @@ Mode                 LastWriteTime         Length Name
 
 Deploy resources based on the settings in 'blueprint.yml'.
 ```ps1
-PS C:\Pasm> Invoke-PasmDeployment -FilePath C:\Pasm\blueprint.yml
+PS C:\Pasm> Invoke-PasmDeployment -FilePath blueprint.yml
 ```
 ```
  ResourceType ResourceName ResourceId            Action
@@ -113,9 +114,9 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
 
 ## Same Thing, Shorter
 
-Invoke-PasmAutomation runs the following in order: ```Invoke-PasmValidation```, ```Invoke-PasmBlueprint```, and ```Invoke-PasmDeproyment```.
+```Invoke-PasmAutomation``` runs the following in order: ```Invoke-PasmValidation```, ```Invoke-PasmBlueprint```, and ```Invoke-PasmDeployment```.
 ```ps1
-PS C:\Pasm> Invoke-PasmAutomation -FilePath C:\Pasm\outline.yml -OutputFileName blueprint.yml
+PS C:\Pasm> Invoke-PasmAutomation -FilePath outline.yml -OutputFileName blueprint.yml
 ```
 ```
  ResourceType ResourceName ResourceId            Action
