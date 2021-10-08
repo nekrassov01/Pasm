@@ -1,0 +1,37 @@
+name: release
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get tag
+        shell: bash
+        run: echo "GIT_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        env:
+          REF: ${{ github.ref }}
+      - name: Publish module
+        shell: pwsh
+        run: . ./Pasm.ps1 -Version $env:GIT_TAG -Release -NuGetApiKey $env:KEY
+        env:
+          KEY: ${{ secrets.SYNCED_PSGALLERY_NUGET_KEY }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Pasm_${{ env.GIT_TAG }}.zip
+          path: ./release/Pasm_${{ env.GIT_TAG }}.zip
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: false
