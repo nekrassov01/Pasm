@@ -35,7 +35,7 @@ Module members.
 |--|--|
 |Invoke-PasmInitialize|Generate a working directory and a sample template.|
 |Invoke-PasmValidation|Parse the Yaml template to validate if it can be loaded.|
-|Invoke-PasmBlueprint|Get the ip ranges from [ip-ranges.json](https://ip-ranges.amazonaws.com/ip-ranges.json) as described in the Yaml template, and create a blueprint.|
+|Invoke-PasmBlueprint|Get the ip ranges from [ip-ranges.json](https://ip-ranges.amazonaws.com/ip-ranges.json) as described in the Yaml template, <br>and create a blueprint.|
 |Invoke-PasmDeployment|Read the blueprint and deploy resources.|
 |Invoke-PasmAutomation|Run the following in order: <ol><li>```Invoke-PasmValidation```</li><li>```Invoke-PasmBlueprint```</li></li><li>```Invoke-PasmDeployment```</li></ol>|
 
