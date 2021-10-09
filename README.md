@@ -11,20 +11,20 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
 
 Install the modules required to use Pasm.
 ```ps1
-PS C:\> Install-Module -Name PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser
-PS C:\> Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser
+Install-Module -Name PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser
+Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser
 ```  
 
 Set the AWS credential.
 ```ps1
-PS C:\> Set-AWSCredential -AccessKey <AWS_ACCESS_KEY_ID> -SecretKey <AWS_SECRET_ACCESS_KEY> -StoreAs default
+Set-AWSCredential -AccessKey <AWS_ACCESS_KEY_ID> -SecretKey <AWS_SECRET_ACCESS_KEY> -StoreAs default
 ```
 
 ## Install
 
 Install Pasm.
 ```ps1
-PS C:\> Install-Module -Name Pasm -Scope CurrentUser
+Install-Module -Name Pasm -Scope CurrentUser
 ```
 
 ## Functions
@@ -52,7 +52,7 @@ The following are the default names. The function parameters ```FilePath```, and
 
 A working directory will be created in the current directory and 'outline.yml' will be deployed as a sample template.
 ```ps1 
-PS C:\> Invoke-PasmInitialize -Name 'Pasm'
+Invoke-PasmInitialize -Name 'Pasm'
 ```
 ```
 BaseDirectory TemplateFile
@@ -64,13 +64,13 @@ C:\Pasm       outline.yml
 
 Go to your working directory and edit 'outline.yml'.
 ```ps1
-PS C:\> Push-Location -LiteralPath 'Pasm'
-PS C:\Pasm> code outline.yml
+Push-Location -LiteralPath 'Pasm'
+code outline.yml
 ```
 
 Only validator processing can be called.
 ```ps1
-PS C:\Pasm> Invoke-PasmValidation -FilePath outline.yml
+Invoke-PasmValidation -FilePath outline.yml
 ```
 ```
 Validation started: outline.yml
@@ -92,7 +92,7 @@ Validation finished: outline.yml
 
 Generate 'blueprint.yml' based on the settings in 'outline.yml'.
 ```ps1
-PS C:\Pasm> Invoke-PasmBlueprint -FilePath outline.yml -OutputFileName blueprint.yml
+Invoke-PasmBlueprint -FilePath outline.yml -OutputFileName blueprint.yml
 ```
 ```
 Mode                 LastWriteTime         Length Name
@@ -102,7 +102,7 @@ Mode                 LastWriteTime         Length Name
 
 Deploy resources based on the settings in 'blueprint.yml'.
 ```ps1
-PS C:\Pasm> Invoke-PasmDeployment -FilePath blueprint.yml
+Invoke-PasmDeployment -FilePath blueprint.yml
 ```
 ```
  ResourceType ResourceName ResourceId            Action
@@ -116,7 +116,7 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
 
 ```Invoke-PasmAutomation``` runs the following in order: ```Invoke-PasmValidation```, ```Invoke-PasmBlueprint```, and ```Invoke-PasmDeployment```.
 ```ps1
-PS C:\Pasm> Invoke-PasmAutomation -FilePath outline.yml -OutputFileName blueprint.yml
+Invoke-PasmAutomation -FilePath outline.yml -OutputFileName blueprint.yml
 ```
 ```
  ResourceType ResourceName ResourceId            Action
