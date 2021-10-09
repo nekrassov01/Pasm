@@ -57,7 +57,7 @@ PS C:\> Invoke-PasmInitialize -Name 'Pasm'
 ```
 BaseDirectory TemplateFile
 ------------- ------------
-C:\Pasm       C:\Pasm\outline.yml
+C:\Pasm       outline.yml
 ```
 
 ## Usage
