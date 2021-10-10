@@ -46,9 +46,9 @@ end {
         ModuleVersion              = $version
         Description                = '{0} is a PowerShell module for simple management of public IP address ranges provided by AWS.' -f $moduleName
         PowerShellVersion          = '5.1'
-        DotNetFrameworkVersion     = '4.5'
-        ClrVersion                 = '4.0.0.0'
-        CompatiblePSEditions       = @('Core', 'Desktop')
+       #DotNetFrameworkVersion     = '4.5'
+       #ClrVersion                 = '4.0.0.0'
+       #CompatiblePSEditions       = @('Core', 'Desktop')
         RequiredModules            = @('PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
        #RequiredAssemblies         = @()
         ExternalModuleDependencies = @('PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
@@ -92,8 +92,8 @@ end {
         if ([string]::IsNullOrWhiteSpace($nuGetApiKey)) {
             throw [InvalidOperationException]::new('The nuget api key is empty. Please specify it.')
         }
-        Import-Module $manifestPath -PassThru -Verbose -Force
-        Get-Module -Name $moduleName
-        Publish-Module -Path $releaseDir -NuGetApiKey $nuGetApiKey
+        Install-Module PowerShellGet -RequiredVersion '3.0.11-beta' -AllowPrerelease -Repository PSGallery
+        Import-Module PowerShellGet
+        Publish-PSResource -Path $releaseDir -Repository PSGallery -ApiKey $nuGetApiKey
     }
 }
