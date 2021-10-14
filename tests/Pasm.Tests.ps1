@@ -1,6 +1,6 @@
 #requires -Modules AWS.Tools.Common
 #requires -Modules AWS.Tools.EC2
-#requires -Modules PowerShell-Yaml
+#requires -Modules powershell-yaml
 
 using namespace System.IO
 using namespace System.Collections.Generic

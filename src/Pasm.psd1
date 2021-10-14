@@ -51,7 +51,7 @@ ClrVersion = '4.0.0.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('PowerShell-Yaml', 
+RequiredModules = @('powershell-yaml', 
                'AWS.Tools.Common', 
                'AWS.Tools.EC2')
 
@@ -120,7 +120,7 @@ PrivateData = @{
         # RequireLicenseAcceptance = $false
 
         # External dependent modules of this module
-        ExternalModuleDependencies = @('PowerShell-Yaml','AWS.Tools.Common','AWS.Tools.EC2')
+        ExternalModuleDependencies = @('powershell-yaml','AWS.Tools.Common','AWS.Tools.EC2')
 
     } # End of PSData hashtable
 
