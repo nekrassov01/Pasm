@@ -49,7 +49,7 @@ end {
         DotNetFrameworkVersion     = '4.5'
         ClrVersion                 = '4.0.0.0'
         CompatiblePSEditions       = @('Core', 'Desktop')
-        RequiredModules            = @('powershell-yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
+       #RequiredModules            = @('powershell-yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
        #RequiredAssemblies         = @()
         ExternalModuleDependencies = @('powershell-yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
         CmdletsToExport            = @()
