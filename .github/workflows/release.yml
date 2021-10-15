@@ -26,11 +26,6 @@ jobs:
         run: . ./Pasm.ps1 -Version $env:GIT_TAG -Release -NuGetApiKey $env:KEY
         env:
           KEY: ${{ secrets.SYNCED_PSGALLERY_NUGET_KEY }}
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Pasm_${{ env.GIT_TAG }}.zip
-          path: ./release/Pasm_${{ env.GIT_TAG }}.zip
       - name: Create release
         uses: actions/create-release@v1
         id: create_release
