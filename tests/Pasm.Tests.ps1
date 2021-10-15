@@ -5,6 +5,8 @@
 using namespace System.IO
 using namespace System.Collections.Generic
 
+$script:sepalator = [path]::DirectorySeparatorChar
+
 function script:New-PasmTestVpc {
     param (
         [string]$ProfileName = 'default'
@@ -165,7 +167,6 @@ Import-Module -Name $($PSScriptRoot, '..', 'src', 'Pasm.psm1' -join $sepalator) 
 InModuleScope 'Pasm' {
     Describe 'UnitTest' {
         BeforeAll {
-            $script:sepalator = [path]::DirectorySeparatorChar
             $script:obj = New-PasmTestVpc
         }
         Context 'RunWithBasicTemplate1' {
