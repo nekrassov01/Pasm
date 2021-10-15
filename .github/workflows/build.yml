@@ -10,7 +10,7 @@ on:
       - main
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
@@ -19,7 +19,7 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name PSScriptAnalyzer, Pester, powershell-yaml, AWS.Tools.Installer -Scope CurrentUser -SkipPublisherCheck -AllowClobber -Force
+          Install-Module -Name PSScriptAnalyzer, Pester, PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser -SkipPublisherCheck -AllowClobber -Force
           Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser -SkipPublisherCheck -AllowClobber -Force -CleanUp
       - name: Configure AWS credentials
         shell: pwsh

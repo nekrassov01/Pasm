@@ -118,7 +118,7 @@ PrivateData = @{
         # RequireLicenseAcceptance = $false
 
         # External dependent modules of this module
-        ExternalModuleDependencies = @('powershell-yaml','AWS.Tools.Common','AWS.Tools.EC2')
+        ExternalModuleDependencies = @('PowerShell-Yaml','AWS.Tools.Common','AWS.Tools.EC2')
 
     } # End of PSData hashtable
 

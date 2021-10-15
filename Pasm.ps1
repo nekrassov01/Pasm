@@ -49,9 +49,9 @@ end {
         DotNetFrameworkVersion     = '4.5'
         ClrVersion                 = '4.0.0.0'
         CompatiblePSEditions       = @('Core', 'Desktop')
-       #RequiredModules            = @('powershell-yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
+       #RequiredModules            = @('PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
        #RequiredAssemblies         = @()
-        ExternalModuleDependencies = @('powershell-yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
+        ExternalModuleDependencies = @('PowerShell-Yaml', 'AWS.Tools.Common', 'AWS.Tools.EC2')
         CmdletsToExport            = @()
         FunctionsToExport          = (Get-ChildItem -LiteralPath (Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath 'src') -ChildPath 'Functions') -Filter '*.ps1').ForEach( { [path]::GetFileNameWithoutExtension($_.Name) } )
         VariablesToExport          = '*'
