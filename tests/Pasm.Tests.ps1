@@ -83,9 +83,9 @@ function script:New-PasmTestTemplate {
     }
 
     # Output template for test
-    $workingDirectory = $PSScriptRoot, '.work' -join [path]::DirectorySeparatorChar
+    $workingDirectory = $PSScriptRoot, '.work' -join $sepalator
     New-Item -Path $workingDirectory -ItemType Directory -Force | Out-Null
-    $outputFilePath = $workingDirectory, [path]::GetFileName($templateFilePath) -join [path]::DirectorySeparatorChar
+    $outputFilePath = $workingDirectory, [path]::GetFileName($templateFilePath) -join $sepalator
     $template | ConvertTo-Yaml -OutFile $outputFilePath -Force
 
     return [fileinfo]::new($outputFilePath)
@@ -160,19 +160,20 @@ function script:Remove-PasmTestVpc {
     Clear-AWSDefaultConfiguration -SkipProfileStore
 }
 
-Import-Module -Name $($PSScriptRoot, '..', 'src', 'Pasm.psm1' -join [path]::DirectorySeparatorChar) -Force
+Import-Module -Name $($PSScriptRoot, '..', 'src', 'Pasm.psm1' -join $sepalator) -Force
 
 InModuleScope 'Pasm' {
     Describe 'UnitTest' {
         BeforeAll {
+            $script:sepalator = [path]::DirectorySeparatorChar
             $script:obj = New-PasmTestVpc
         }
         Context 'RunWithBasicTemplate1' {
             BeforeAll {
-                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success1.yml' -join [path]::DirectorySeparatorChar)
+                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success1.yml' -join $sepalator)
                 $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 $script:blueprintFileName = 'blueprint.success1.yml'
-                $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join [path]::DirectorySeparatorChar)
+                $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join $sepalator)
             }
             It 'Validation' {
                 Invoke-PasmValidation -FilePath $outlineFilePath | Should -BeTrue
@@ -192,10 +193,10 @@ InModuleScope 'Pasm' {
         }
         Context 'RunWithBasicTemplate2' {
             BeforeAll {
-                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success2.yml' -join [path]::DirectorySeparatorChar)
+                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success2.yml' -join $sepalator)
                 $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 $script:blueprintFileName = 'blueprint.success2.yml'
-                $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join [path]::DirectorySeparatorChar)
+                $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join $sepalator)
             }
             It 'Validation' {
                 Invoke-PasmValidation -FilePath $outlineFilePath | Should -BeTrue
@@ -216,142 +217,142 @@ InModuleScope 'Pasm' {
         Context 'InvokeValidationError' {
             It 'Parent: Key.Invalid' {
                 $templateName = 'outline.error.parent.key.invalid.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Parent: Key.NotRequired.Common' {
                 $templateName = 'outline.error.parent.key.not-required.common.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Parent: Key.NotRequired.Resource' {
                 $templateName = 'outline.error.parent.key.not-required.resource.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Parent: Key.Empty.Common' {
                 $templateName = 'outline.error.parent.key.empty.common.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Parent: Key.Empty.Resource' {
                 $templateName = 'outline.error.parent.key.empty.resource.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Key.Invalid' {
                 $templateName = 'outline.error.common.key.invalid.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Key.NotRequired.Region' {
                 $templateName = 'outline.error.common.key.not-required.region.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Key.NotRequired.ProfileName' {
                 $templateName = 'outline.error.common.key.not-required.profile-name.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Key.Empty.Region' {
                 $templateName = 'outline.error.common.key.empty.region.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Key.Empty.ProfileName' {
                 $templateName = 'outline.error.common.key.empty.profile-name.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Value.Scalar.Region' {
                 $templateName = 'outline.error.common.value.scalar.region.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Value.Scalar.ProfileName' {
                 $templateName = 'outline.error.common.value.scalar.profile-name.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Value.API.Region' {
                 $templateName = 'outline.error.common.value.api.region.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Common: Value.API.ProfileName' {
                 $templateName = 'outline.error.common.value.api.profile-name.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Resource: Key.Invalid' {
                 $templateName = 'outline.error.resource.key.invalid.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Resource: Key.Empty.SecurityGroup' {
                 $templateName = 'outline.error.resource.key.empty.security-group.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Resource: Key.Empty.NetworkAcl' {
                 $templateName = 'outline.error.resource.key.empty.network-acl.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Resource: Key.Empty.PrefixList' {
                 $templateName = 'outline.error.resource.key.empty.prefix-list.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Sample: Range' {
                 $templateName = 'outline.error.sample.range.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Sample: FromTo' {
                 $templateName = 'outline.error.sample.from-to.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Sample: Bool' {
                 $templateName = 'outline.error.sample.bool.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Sample: ServiceKey' {
                 $templateName = 'outline.error.sample.service-key.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Sample: Region' {
                 $templateName = 'outline.error.sample.region.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
             It 'Sample: VpcId' {
                 $templateName = 'outline.error.sample.vpc-id.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 { Invoke-PasmValidation -FilePath $templateFilePath } | Should -Throw
             }
             It 'Sample: SubnetId' {
                 $templateName = 'outline.error.sample.subnet-id.yml'
-                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join [path]::DirectorySeparatorChar)
+                $templateFilePath = $($PSScriptRoot, 'templates', $templateName -join $sepalator)
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath -SkipSubnetId).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
             }
         }
         AfterAll {
-            $workingDirectory = $PSScriptRoot, '.work' -join [path]::DirectorySeparatorChar
+            $workingDirectory = $PSScriptRoot, '.work' -join $sepalator
             Remove-Item -LiteralPath $workingDirectory -Recurse -Force | Out-Null
             Remove-PasmTestVpc $obj
         }

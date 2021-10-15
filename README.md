@@ -4,7 +4,7 @@
 
 Pasm is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply following simple rules and creating YAML templates, you can keep up with IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.  
 
-## PowerShell Editions
+## Editions
 
 |Core|Desktop|
 |--|--|
@@ -27,7 +27,7 @@ Set-AWSCredential -AccessKey <AWS_ACCESS_KEY_ID> -SecretKey <AWS_SECRET_ACCESS_K
 
 ## Install
 
-Install Pasm.
+Install Pasm with the following command.
 
 ```ps1
 Install-Module -Name Pasm -Scope CurrentUser
@@ -35,7 +35,7 @@ Install-Module -Name Pasm -Scope CurrentUser
 
 ## Functions
 
-Module members.
+Pasm includes 5 functions.
 
 |Function|Description|
 |--|--|
@@ -59,8 +59,10 @@ The following are the default names. The function parameters `FilePath`, and `Ou
 A working directory will be created in the current directory and 'outline.yml' will be deployed as a sample template.
 
 ```ps1
-> Invoke-PasmInitialize -Name 'Pasm'
+Invoke-PasmInitialize -Name 'Pasm'
+```
 
+```text
 BaseDirectory TemplateFile
 ------------- ------------
 C:\Pasm       outline.yml
@@ -71,15 +73,17 @@ C:\Pasm       outline.yml
 Go to your working directory and edit 'outline.yml'.
 
 ```ps1
-> Push-Location -LiteralPath 'Pasm'
-> code outline.yml
+Push-Location -LiteralPath 'Pasm'
+code outline.yml
 ```
 
 Only validator processing can be called.
 
 ```ps1
-> Invoke-PasmValidation -FilePath outline.yml
+Invoke-PasmValidation -FilePath outline.yml
+```
 
+```text
 Validation started: outline.yml
 Validation passed: Parent
 Validation passed: Common
@@ -100,8 +104,10 @@ Validation finished: outline.yml
 Generate 'blueprint.yml' based on the settings in 'outline.yml'.
 
 ```ps1
-> Invoke-PasmBlueprint -FilePath outline.yml -OutputFileName blueprint.yml
+Invoke-PasmBlueprint -FilePath outline.yml -OutputFileName blueprint.yml
+```
 
+```text
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a---          2021/10/05    00:00          99999 blueprint.yml
@@ -110,8 +116,10 @@ Mode                 LastWriteTime         Length Name
 Deploy resources based on the settings in 'blueprint.yml'.
 
 ```ps1
-> Invoke-PasmDeployment -FilePath blueprint.yml
+Invoke-PasmDeployment -FilePath blueprint.yml
+```
 
+```text
  ResourceType ResourceName ResourceId            Action
  ------------ ------------ ----------            ------
 SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
@@ -124,8 +132,10 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
 `Invoke-PasmAutomation` runs the following in order: `Invoke-PasmValidation`, `Invoke-PasmBlueprint`, and `Invoke-PasmDeployment`.
 
 ```ps1
-> Invoke-PasmAutomation -FilePath outline.yml -OutputFileName blueprint.yml
+Invoke-PasmAutomation -FilePath outline.yml -OutputFileName blueprint.yml
+```
 
+```text
  ResourceType ResourceName ResourceId            Action
  ------------ ------------ ----------            ------
 SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Sync
@@ -134,6 +144,8 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Sync
 ```
 
 ## Sample Template (outline.yml)
+
+'outline.yml' will be deployed with comments. Please overwrite it according to your environment.
 
 ```yaml
 ### sample template ###
@@ -216,6 +228,6 @@ Resource:                           # required
 
 ## To do
 
-- Fix the problem of not being able to publish modules to PSGallery.
+- Pass the 'VpcId' and 'SubnetId' of the sample template as parameters.
 - Implement the cleanup process.
 - Performance tuning.

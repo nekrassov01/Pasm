@@ -44,7 +44,7 @@ end {
         Copyright                  = '(c) {0} All rights reserved.' -f $author
         RootModule                 = '{0}.psm1' -f $moduleName
         ModuleVersion              = $version
-        Description                = '{0} is a PowerShell module for simple management of public IP address ranges provided by AWS.' -f $moduleName
+        Description                = '{0} is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply creating a YAML template according to simple rules, you can support IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.' -f $moduleName
         PowerShellVersion          = '5.1'
         DotNetFrameworkVersion     = '4.5'
         ClrVersion                 = '4.0.0.0'
@@ -56,7 +56,7 @@ end {
         FunctionsToExport          = (Get-ChildItem -LiteralPath (Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath 'src') -ChildPath 'Functions') -Filter '*.ps1').ForEach( { [path]::GetFileNameWithoutExtension($_.Name) } )
         VariablesToExport          = '*'
         AliasesToExport            = @()
-        Tags                       = @('AWS')
+        Tags                       = @('AWS', 'Linux', 'Windows')
         ProjectUri                 = 'https://github.com/{0}/{1}' -f $author, $moduleName
         LicenseUri                 = 'https://github.com/{0}/{1}/blob/main/LICENSE' -f $author, $moduleName
         ReleaseNotes               = 'https://github.com/{0}/{1}/releases/tag/{2}' -f $author, $moduleName, $version
