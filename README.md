@@ -14,7 +14,6 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
   - [Usage](#usage)
   - [Same Thing, Shorter](#same-thing-shorter)
   - [Sample Template (outline.yml)](#sample-template-outlineyml)
-  - [To do](#to-do)
 
 ## Compatible Editions
 
@@ -247,10 +246,3 @@ Resource:                           # required
       Region:
       - ap-northeast-2
 ```
-
-## To do
-
-- [x] Pass the 'VpcId' and 'SubnetId' of the sample template as parameters.
-- [ ] Adding Alias commands.
-- [ ] Implement the cleanup process.
-- [ ] Performance tuning.
