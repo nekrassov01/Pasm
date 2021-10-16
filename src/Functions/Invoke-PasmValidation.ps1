@@ -207,7 +207,7 @@ function Invoke-PasmValidation {
 
         .EXAMPLE
         # Loading multiple files
-        Invoke-PasmValidation -FilePath 'C:/Pasm/outline-sg.yml', 'C:/Pasm/outline-nacl.yml', 'C:/Pasm/outline-plyml'
+        Invoke-PasmValidation -FilePath 'C:/Pasm/outline-sg.yml', 'C:/Pasm/outline-nacl.yml', 'C:/Pasm/outline-pl.yml'
 
         .EXAMPLE
         # Loading multiple files from pipeline

@@ -15,6 +15,16 @@ function Invoke-PasmInitialize {
         [ValidateNotNullOrEmpty()]
         [string]$Name = 'Pasm',
 
+        # If the target vpc already exists, overwrite 'VpcId'.
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]$VpcId,
+
+        # If the target subnets already exists, overwrite 'SubnetId'.
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$SubnetId,
+
         # Force overwriting of template if it already exists.
         [Parameter(Mandatory = $false)]
         [switch]$Force
@@ -23,6 +33,10 @@ function Invoke-PasmInitialize {
     end {
         try {
             Set-StrictMode -Version Latest
+
+            # Load helper functions
+            . $($PSScriptRoot, 'Helpers', 'Helpers.ps1' -join [path]::DirectorySeparatorChar)
+
             $content = @'
 ### sample template ###
 Common:                             # required
@@ -102,6 +116,33 @@ Resource:                           # required
       - ap-northeast-2
 '@
 
+            # If 'VpcId' or 'SubnetId' is passed from the parameter, it will overwrite the value in the sample template            
+            $isPresent_VpcId = $PSBoundParameters.ContainsKey('VpcId')
+            $isPresent_SubnetId = $PSBoundParameters.ContainsKey('SubnetId')
+
+            if ($isPresent_VpcId -or $isPresent_SubnetId) {
+                $yaml = ConvertFrom-Yaml -Yaml $content -Ordered           
+                if ($isPresent_VpcId) {
+                    foreach ($resource in 'SecurityGroup', 'NetworkAcl', 'PrefixList') {
+                        foreach ($r in $yaml.Resource.$resource) {
+                            if ($r.Contains('VpcId')) {
+                                $r.VpcId = $vpcId
+                                Test-PasmVpcId -VpcId $r.VpcId | Out-Null
+                            }
+                        }
+                    }
+                }
+                if ($isPresent_SubnetId) {
+                    foreach ($n in $yaml.Resource.NetworkACL) {
+                        if ($n.Contains('AssociationSubnetId')) {
+                            $n.AssociationSubnetId = $subnetId
+                            Test-PasmSubnetId -SubnetId $n.AssociationSubnetId | Out-Null
+                        }
+                    }
+                }
+                $content = $yaml | ConvertTo-Yaml
+            }
+                
             $baseDir = New-Item -Path $path -Name $name -ItemType Directory -Force
             $fileName = '{0}.yml' -f [Pasm.Template.Name]::outline
             $outputFilePath = $baseDir.FullName, $fileName -join [path]::DirectorySeparatorChar
@@ -138,6 +179,14 @@ Resource:                           # required
         .EXAMPLE
         # Build by specifying a directory name
         Invoke-PasmInitialize -Name 'Test'
+
+        .EXAMPLE
+        # 'VpcId' and 'AssociationSubnetId' can be overridden with actual values
+        Invoke-PasmInitialize -VpcId 'vpc-1qaz2wsx3edc4rfv5' -SubnetId 'subnet-zxcvasdfqwer12345', 'subnet-poiulkjhmnbv09876'
+
+        .EXAMPLE
+        # To allow overwriting of an already existing template file
+        Invoke-PasmInitialize -Force
 
         .LINK
         https://github.com/nekrassov01/Pasm

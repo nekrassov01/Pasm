@@ -169,6 +169,17 @@ InModuleScope 'Pasm' {
         BeforeAll {
             $script:obj = New-PasmTestVpc
         }
+        Context 'InitializeWithTargetVpcParameter' {
+            It 'Initialize: VpcId' {
+                Invoke-PasmInitialize -VpcId $obj.VpcId -Force | Should -BeTrue
+            }
+            It 'Initialize: AssociationSubnetId' {
+                Invoke-PasmInitialize -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+            }
+            It 'Initialize: Both' {
+                Invoke-PasmInitialize -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+            }
+        }
         Context 'RunWithBasicTemplate1' {
             BeforeAll {
                 $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success1.yml' -join $sepalator)

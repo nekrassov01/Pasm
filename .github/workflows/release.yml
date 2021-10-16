@@ -18,12 +18,14 @@ jobs:
           Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser -SkipPublisherCheck -AllowClobber -Force -CleanUp
       - name: Get tag
         shell: bash
-        run: echo "GIT_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: |
+          echo "GIT_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         env:
           REF: ${{ github.ref }}
       - name: Publish module
         shell: pwsh
-        run: . ./Pasm.ps1 -Version $env:GIT_TAG -Release -NuGetApiKey $env:KEY
+        run: |
+          . ./Pasm.ps1 -Version $env:GIT_TAG -Release -NuGetApiKey $env:KEY
         env:
           KEY: ${{ secrets.SYNCED_PSGALLERY_NUGET_KEY }}
       - name: Create release

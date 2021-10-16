@@ -24,11 +24,14 @@ jobs:
       - name: Configure AWS credentials
         shell: pwsh
         run: |
-          Set-AWSCredential -AccessKey ${{ secrets.AWS_ACCESS_KEY_ID }} -SecretKey ${{ secrets.AWS_SECRET_ACCESS_KEY }} -StoreAs default
+          Set-AWSCredential -AccessKey $env:ACCESS_KEY -SecretKey $env:SECRET_KEY -StoreAs default
+        env:
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: Run unit test
         shell: pwsh
         run: |
-          Invoke-Pester -Output Detailed -CI -PassThru
+          Invoke-Pester -Output Detailed -CI -PassThru -Verbose
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:

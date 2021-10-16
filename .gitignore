@@ -3,7 +3,7 @@
 # CI/CD
 release/**/*
 !release/.gitkeep
-testResults.xml
+[Tt]estResults.xml
 
 # Environment settings
 .env
