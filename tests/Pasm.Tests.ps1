@@ -182,9 +182,9 @@ InModuleScope 'Pasm' {
         }
         Context 'RunWithBasicTemplate1' {
             BeforeAll {
-                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success1.yml' -join $sepalator)
+                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success.1.yml' -join $sepalator)
                 $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
-                $script:blueprintFileName = 'blueprint.success1.yml'
+                $script:blueprintFileName = 'blueprint.success.1.yml'
                 $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join $sepalator)
             }
             It 'Validation' {
@@ -205,9 +205,9 @@ InModuleScope 'Pasm' {
         }
         Context 'RunWithBasicTemplate2' {
             BeforeAll {
-                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success2.yml' -join $sepalator)
+                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success.2.yml' -join $sepalator)
                 $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
-                $script:blueprintFileName = 'blueprint.success2.yml'
+                $script:blueprintFileName = 'blueprint.success.2.yml'
                 $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join $sepalator)
             }
             It 'Validation' {
