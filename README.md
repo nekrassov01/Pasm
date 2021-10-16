@@ -68,7 +68,7 @@ BaseDirectory TemplateFile
 C:\Pasm       outline.yml
 ```
 
-If the target vpc and subnets already exists, overwrite `VpcId` and `AssciationSubnetId`.
+If the target vpc and subnets already exists, overwrite `VpcId` and `AssociationSubnetId`.
 
 ```ps1
 $param = @{
@@ -238,7 +238,7 @@ Resource:                           # required
 
 ## To do
 
-- [ ] Pass the 'VpcId' and 'SubnetId' of the sample template as parameters.
+- [x] Pass the 'VpcId' and 'SubnetId' of the sample template as parameters.
 - [ ] Adding Alias commands.
 - [ ] Implement the cleanup process.
 - [ ] Performance tuning.
