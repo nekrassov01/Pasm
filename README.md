@@ -4,6 +4,18 @@
 
 Pasm is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply following simple rules and creating YAML templates, you can keep up with IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.  
 
+- [Pasm](#pasm)
+  - [Compatible Editions](#compatible-editions)
+  - [Prerequisites for using Pasm](#prerequisites-for-using-pasm)
+  - [Install](#install)
+  - [Functions](#functions)
+  - [Configuration Files](#configuration-files)
+  - [Initialization](#initialization)
+  - [Usage](#usage)
+  - [Same Thing, Shorter](#same-thing-shorter)
+  - [Sample Template (outline.yml)](#sample-template-outlineyml)
+  - [To do](#to-do)
+
 ## Compatible Editions
 
 |Core|Desktop|
