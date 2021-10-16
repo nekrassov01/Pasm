@@ -7,6 +7,7 @@ function Invoke-PasmValidation {
     param (
         # Specify the path to the Yaml template.
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Alias('file')]
         [ValidateNotNullOrEmpty()]
         [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join [path]::DirectorySeparatorChar)
     )

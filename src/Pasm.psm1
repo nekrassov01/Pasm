@@ -44,4 +44,16 @@ namespace ${moduleName}.Template
 
 $functionsDir = Join-Path -Path $PSScriptRoot -ChildPath 'Functions'
 Get-ChildItem -LiteralPath $functionsDir -Filter '*.ps1' -Recurse | ForEach-Object { . $_.PSPath }
+
+$map = @{
+    'psmi' = 'Invoke-PasmInitialize'
+    'psmv' = 'Invoke-PasmValidation'
+    'psmb' = 'Invoke-PasmBlueprint'
+    'psmd' = 'Invoke-PasmDeployment'
+    'psma' = 'Invoke-PasmAutomation'
+}
+foreach ($m in $map.GetEnumerator()) {
+    Set-Alias -Name $m.Key -Value $m.Value
+}
+
 Export-ModuleMember -Function * -Cmdlet * -Alias *

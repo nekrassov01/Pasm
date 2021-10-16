@@ -13,6 +13,7 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
   - [Initialization](#initialization)
   - [Usage](#usage)
   - [Same Thing, Shorter](#same-thing-shorter)
+  - [Aliases](#aliases)
   - [Sample Template (outline.yml)](#sample-template-outlineyml)
 
 ## Compatible Editions
@@ -162,6 +163,35 @@ Invoke-PasmAutomation -FilePath outline.yml -OutputFileName blueprint.yml
 SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Sync
    NetworkAcl test-acl-01  acl-zaq123xsw456cde78 Sync
    PrefixList test-pl-01   pl-poilkjmnb159753az  Sync
+```
+
+## Aliases
+
+You can execute the commands with aliases as follows.
+
+```ps1
+# Invoke-PasmInitialize -Path 'C:\' -Name 'Pasm' -VpcId 'vpc-id' -SubnetId 'subnet-id-1', 'subnet-id-2'
+psmi -p 'C:\' -n 'Pasm' -vpc 'your-vpc-id' -sbn 'your-subnet-id-1', 'your-subnet-id-2'
+```
+
+```ps1
+# Invoke-PasmValidation -FilePath 'C:\Pasm\outline.yml'
+psmv -file 'C:\Pasm\outline.yml'
+```
+
+```ps1
+# Invoke-PasmBlueprint -FilePath 'C:\Pasm\outline.yml' -OutputFileName 'blueprint.yml' -NoValidation
+psmb -file 'C:\Pasm\outline.yml' -out 'blueprint.yml' -nv
+```
+
+```ps1
+# Invoke-PasmDeployment -FilePath 'C:\Pasm\blueprint.yml'
+psmd -file 'C:\Pasm\blueprint.yml'
+```
+
+```ps1
+# Invoke-PasmAutomation -FilePath 'C:\Pasm\blueprint.yml' -OutputFileName 'blueprint.yml'
+psma -file 'C:\Pasm\outline.yml' -out 'blueprint.yml'
 ```
 
 ## Sample Template (outline.yml)

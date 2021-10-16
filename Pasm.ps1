@@ -55,7 +55,7 @@ end {
         CmdletsToExport            = @()
         FunctionsToExport          = (Get-ChildItem -LiteralPath (Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath 'src') -ChildPath 'Functions') -Filter '*.ps1').ForEach( { [path]::GetFileNameWithoutExtension($_.Name) } )
         VariablesToExport          = '*'
-        AliasesToExport            = @()
+        AliasesToExport            = @('psmi', 'psmv', 'psmb', 'psmd', 'psma')
         Tags                       = @('AWS', 'Linux', 'Windows')
         ProjectUri                 = 'https://github.com/{0}/{1}' -f $author, $moduleName
         LicenseUri                 = 'https://github.com/{0}/{1}/blob/main/LICENSE' -f $author, $moduleName

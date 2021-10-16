@@ -7,11 +7,13 @@ function Invoke-PasmAutomation {
     param (
         # Specify the path to the Yaml template.
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Alias('file')]
         [ValidateNotNullOrEmpty()]
         [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join [path]::DirectorySeparatorChar),
         
         # Specify the output file name.
         [Parameter(Mandatory = $false)]
+        [Alias('out')]
         [ValidateNotNullOrEmpty()]
         [string[]]$OutputFileName = $('{0}.yml' -f [Pasm.Template.Name]::blueprint)
     )

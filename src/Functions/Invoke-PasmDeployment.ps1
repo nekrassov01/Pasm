@@ -10,6 +10,7 @@ function Invoke-PasmDeployment {
     param (
         # Specify the path to the Yaml template.
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Alias('file')]
         [ValidateNotNullOrEmpty()]
         [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::blueprint) -join [path]::DirectorySeparatorChar)
     )

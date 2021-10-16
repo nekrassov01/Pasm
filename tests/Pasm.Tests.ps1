@@ -167,25 +167,30 @@ Import-Module -Name $($PSScriptRoot, '..', 'src', 'Pasm.psm1' -join $sepalator) 
 InModuleScope 'Pasm' {
     Describe 'UnitTest' {
         BeforeAll {
+            $script:workingDirectory = $PSScriptRoot, '.work' -join $sepalator
             $script:obj = New-PasmTestVpc
         }
         Context 'InitializeWithTargetVpcParameter' {
+            BeforeAll {
+                $script:path = [path]::GetDirectoryName($workingDirectory)
+                $script:name = [path]::GetFileName($workingDirectory)
+            }
             It 'Initialize: VpcId' {
-                Invoke-PasmInitialize -VpcId $obj.VpcId -Force | Should -BeTrue
+                Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force -WarningAction SilentlyContinue | Should -BeTrue
             }
             It 'Initialize: AssociationSubnetId' {
-                Invoke-PasmInitialize -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+                Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
             }
             It 'Initialize: Both' {
-                Invoke-PasmInitialize -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+                Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
             }
         }
         Context 'RunWithBasicTemplate1' {
             BeforeAll {
-                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success.1.yml' -join $sepalator)
+                $script:templateFilePath = $PSScriptRoot, 'templates', 'outline.success.1.yml' -join $sepalator
                 $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 $script:blueprintFileName = 'blueprint.success.1.yml'
-                $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join $sepalator)
+                $script:blueprintFilePath = $PSScriptRoot, '.work', $blueprintFileName -join $sepalator
             }
             It 'Validation' {
                 Invoke-PasmValidation -FilePath $outlineFilePath | Should -BeTrue
@@ -198,17 +203,17 @@ InModuleScope 'Pasm' {
             }
             It 'Deployment: Sync' {
                 Invoke-PasmDeployment -FilePath $blueprintFilePath | Should -BeTrue
-            }            
+            }
             AfterAll {
                 Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath
             }
         }
         Context 'RunWithBasicTemplate2' {
             BeforeAll {
-                $script:templateFilePath = $($PSScriptRoot, 'templates', 'outline.success.2.yml' -join $sepalator)
+                $script:templateFilePath = $PSScriptRoot, 'templates', 'outline.success.2.yml' -join $sepalator
                 $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                 $script:blueprintFileName = 'blueprint.success.2.yml'
-                $script:blueprintFilePath = $($PSScriptRoot, '.work', $blueprintFileName -join $sepalator)
+                $script:blueprintFilePath = $PSScriptRoot, '.work', $blueprintFileName -join $sepalator
             }
             It 'Validation' {
                 Invoke-PasmValidation -FilePath $outlineFilePath | Should -BeTrue
@@ -361,6 +366,34 @@ InModuleScope 'Pasm' {
                 $templateFilePath = $PSScriptRoot, 'templates', $templateName -join $sepalator
                 $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath -SkipSubnetId).FullName
                 { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
+            }
+        }
+        Context 'RunWithAlias' {
+            BeforeAll {
+                $script:templateFilePath = $PSScriptRoot, 'templates', 'outline.success.1.yml' -join $sepalator
+                $script:outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
+                $script:blueprintFileName = 'blueprint.success.1.yml'
+                $script:blueprintFilePath = $PSScriptRoot, '.work', $blueprintFileName -join $sepalator
+            }
+            It 'Alias: psmi' {
+                $p = [path]::GetDirectoryName($workingDirectory)
+                $n = [path]::GetFileName($workingDirectory)
+                psmi -p $p -n $n -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+            }
+            It 'Alias: psmv' {
+                psmv -file $outlineFilePath | Should -BeTrue
+            }
+            It 'Alias: psmb' {
+                psmb -file $outlineFilePath -out $blueprintFileName | Should -BeTrue
+            }
+            It 'Alias: psmd' {
+                psmd -file $blueprintFilePath | Should -BeTrue
+            }
+            It 'Alias: psma' {
+                psma -file $outlineFilePath -out $blueprintFileName | Should -BeTrue
+            }
+            AfterAll {
+                Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath
             }
         }
         AfterAll {
