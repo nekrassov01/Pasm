@@ -127,7 +127,6 @@ Resource:                           # required
                         foreach ($r in $yaml.Resource.$resource) {
                             if ($r.Contains('VpcId')) {
                                 $r.VpcId = $vpcId
-                                Test-PasmVpcId -VpcId $r.VpcId | Out-Null
                             }
                         }
                     }
@@ -136,11 +135,11 @@ Resource:                           # required
                     foreach ($n in $yaml.Resource.NetworkACL) {
                         if ($n.Contains('AssociationSubnetId')) {
                             $n.AssociationSubnetId = $subnetId
-                            Test-PasmSubnetId -SubnetId $n.AssociationSubnetId | Out-Null
                         }
                     }
                 }
                 $content = $yaml | ConvertTo-Yaml
+                $PSCmdlet.WriteWarning('If you overwrite the ''VpcId'' or ''AssociationSubnetId'', be sure to run ''Invoke-PasmValidation'' to validate the template.')
             }
                 
             $baseDir = New-Item -Path $path -Name $name -ItemType Directory -Force
