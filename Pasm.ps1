@@ -85,7 +85,7 @@ end {
     }
     New-Item -Path $releaseDir -ItemType Directory -Force | Out-Null
     New-Item -Path $($releaseDir, '..', '.gitkeep' -join $sepalator) -ItemType File -Force | Out-Null
-    Copy-Item -Path $($moduleDir, '*' -join $sepalator), '*.md' -Destination $releaseDir -Recurse -Force | Out-Null
+    Copy-Item -Path $($moduleDir, '*' -join $sepalator), '*.md', 'LICENSE' -Destination $releaseDir -Recurse -Force | Out-Null
 
     # If the 'Release' switch is True, the module will be published
     if ($release) {
