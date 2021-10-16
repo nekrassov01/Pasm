@@ -7,21 +7,25 @@ function Invoke-PasmInitialize {
     param (
         # Where to create a working directory.
         [Parameter(Mandatory = $false)]
+        [Alias('p')]
         [ValidateNotNullOrEmpty()]
         [string]$Path = $PWD,
 
         # The name of the new directory where the Yaml templates will be placed.
         [Parameter(Mandatory = $false)]
+        [Alias('n')]
         [ValidateNotNullOrEmpty()]
         [string]$Name = 'Pasm',
 
         # If the target vpc already exists, overwrite 'VpcId'.
         [Parameter(Mandatory = $false)]
+        [Alias('vpc')]
         [ValidateNotNullOrEmpty()]
         [string]$VpcId,
 
         # If the target subnets already exists, overwrite 'SubnetId'.
         [Parameter(Mandatory = $false)]
+        [Alias('sbn')]
         [ValidateNotNullOrEmpty()]
         [string[]]$SubnetId,
 
