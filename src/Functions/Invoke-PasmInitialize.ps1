@@ -120,6 +120,20 @@ Resource:                           # required
       - ap-northeast-2
 '@
 
+            # Pattern match validation 'VpcId' and 'AssociationSubnetId'
+            if ($PSBoundParameters.ContainsKey('VpcId')) {
+                if ($vpcId -cnotmatch '^vpc-[0-9a-z]{17}$') {
+                    throw [InvalidOperationException]::new($('''{0}'' does not match a valid id pattern.' -f $vpcId))
+                }
+            }
+            if ($PSBoundParameters.ContainsKey('SubnetId')) {
+                foreach ($id in $SubnetId) {
+                    if ($id -cnotmatch '^subnet-[0-9a-z]{17}$') {
+                        throw [InvalidOperationException]::new($('''{0}'' does not match a valid id pattern.' -f $id))
+                    }
+                }
+            }
+
             # If 'VpcId' or 'SubnetId' is passed from the parameter, it will overwrite the value in the sample template            
             $isPresent_VpcId = $PSBoundParameters.ContainsKey('VpcId')
             $isPresent_SubnetId = $PSBoundParameters.ContainsKey('SubnetId')
