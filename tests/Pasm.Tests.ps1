@@ -168,21 +168,32 @@ InModuleScope 'Pasm' {
     Describe 'UnitTest' {
         BeforeAll {
             $script:workingDirectory = $PSScriptRoot, '.work' -join $sepalator
+            $script:path = [path]::GetDirectoryName($workingDirectory)
+            $script:name = [path]::GetFileName($workingDirectory)
             $script:obj = New-PasmTestVpc
         }
         Context 'InitializeWithTargetVpcParameter' {
-            BeforeAll {
-                $script:path = [path]::GetDirectoryName($workingDirectory)
-                $script:name = [path]::GetFileName($workingDirectory)
+            Context 'ExpectedToPass' {
+                It 'Initialize: VpcId' {
+                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force -WarningAction SilentlyContinue | Should -BeTrue
+                }
+                It 'Initialize: AssociationSubnetId' {
+                    Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                }
+                It 'Initialize: Both' {
+                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                }
             }
-            It 'Initialize: VpcId' {
-                Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force -WarningAction SilentlyContinue | Should -BeTrue
-            }
-            It 'Initialize: AssociationSubnetId' {
-                Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
-            }
-            It 'Initialize: Both' {
-                Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+            Context 'ExpectedToThrow' {
+                It 'Initialize: VpcId' {
+                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'Vpc-01234567891234567' -Force -WarningAction SilentlyContinue } | Should -Throw
+                }
+                It 'Initialize: AssociationSubnetId' {
+                    { Invoke-PasmInitialize -Path $path -Name $name -SubnetId 'subnet-01234567891234567', 'subnet-abcdefghijklmnopq!' -Force -WarningAction SilentlyContinue } | Should -Throw
+                }
+                It 'Initialize: Both' {
+                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'vpc-01234567891234567' -SubnetId 'subnet-01234567891234567', 'Subnet-abcdefghijklmnopq' -Force -WarningAction SilentlyContinue } | Should -Throw
+                }
             }
         }
         Context 'RunWithBasicTemplate1' {
@@ -376,9 +387,7 @@ InModuleScope 'Pasm' {
                 $script:blueprintFilePath = $PSScriptRoot, '.work', $blueprintFileName -join $sepalator
             }
             It 'Alias: psmi' {
-                $p = [path]::GetDirectoryName($workingDirectory)
-                $n = [path]::GetFileName($workingDirectory)
-                psmi -p $p -n $n -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                psmi -p $path -n $name -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
             }
             It 'Alias: psmv' {
                 psmv -file $outlineFilePath | Should -BeTrue
