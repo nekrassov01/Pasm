@@ -68,7 +68,7 @@ Resource:                           # required
       Region:
       - ap-northeast-1
       IpFormat:
-      - IPv4
+      - IPv6
       Protocol: tcp
       FromPort: 443
       ToPort: 443
@@ -99,7 +99,7 @@ Resource:                           # required
       Region:
       - ap-northeast-1
       IpFormat:
-      - IPv4
+      - IPv6
       Protocol: tcp
       FromPort: 443
       ToPort: 443
