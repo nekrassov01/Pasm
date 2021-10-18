@@ -6,12 +6,15 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
 
 - [Pasm](#pasm)
   - [Compatible Editions](#compatible-editions)
-  - [Prerequisites for using Pasm](#prerequisites-for-using-pasm)
-  - [Install](#install)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
   - [Functions](#functions)
   - [Configuration Files](#configuration-files)
-  - [Initialization](#initialization)
   - [Usage](#usage)
+    - [Initialization](#initialization)
+    - [Editing and Validation](#editing-and-validation)
+    - [Generating Blueprint](#generating-blueprint)
+    - [Deployment](#deployment)
   - [Same Thing, Shorter](#same-thing-shorter)
   - [Aliases](#aliases)
   - [Sample Template (outline.yml)](#sample-template-outlineyml)
@@ -22,7 +25,7 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
 |--|--|
 |:white_check_mark:|:white_check_mark:|
 
-## Prerequisites for using Pasm
+## Prerequisites
 
 Install the modules required to use Pasm.
 
@@ -37,7 +40,7 @@ Set the AWS credential.
 Set-AWSCredential -AccessKey <AWS_ACCESS_KEY_ID> -SecretKey <AWS_SECRET_ACCESS_KEY> -StoreAs default
 ```
 
-## Install
+## Installation
 
 Install Pasm with the following command.
 
@@ -66,7 +69,11 @@ The following are the default names. The function parameters `FilePath`, and `Ou
 |outline.yml|The user-controlled configuration file. You can use `Invoke-PasmInitialize` to generate and edit a template, or create one manually from scratch.|
 |blueprint.yml|The configuration file that `Invoke-PasmBlueprint` generates by interpreting the 'outline.yml'. The Rules section will be subdivided by IP range.|
 
-## Initialization
+## Usage
+
+There are few steps to follow.
+
+### Initialization
 
 A working directory will be created in the current directory and 'outline.yml' will be deployed as a sample template.
 
@@ -90,7 +97,7 @@ $param = @{
 Invoke-PasmInitialize @param
 ```
 
-## Usage
+### Editing and Validation
 
 Go to your working directory and edit 'outline.yml'.
 
@@ -123,6 +130,8 @@ Validation passed: PrefixList 'test-pl-01' VpcId
 Validation finished: outline.yml
 ```
 
+### Generating Blueprint
+
 Generate 'blueprint.yml' based on the settings in 'outline.yml'.
 
 ```ps1
@@ -134,6 +143,8 @@ Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a---          2021/10/05    00:00          99999 blueprint.yml
 ```
+
+### Deployment
 
 Deploy resources based on the settings in 'blueprint.yml'.
 
