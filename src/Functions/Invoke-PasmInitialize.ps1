@@ -120,13 +120,16 @@ Resource:                           # required
       - ap-northeast-2
 '@
 
-            # Pattern match validation 'VpcId' and 'AssociationSubnetId'
-            if ($PSBoundParameters.ContainsKey('VpcId')) {
+            $isExistsVpcId = $PSBoundParameters.ContainsKey('VpcId')
+            $isExistsSbnId = $PSBoundParameters.ContainsKey('SubnetId')
+
+            # Pattern match validation 'VpcId' and 'SubnetId'
+            if ($isExistsVpcId) {
                 if ($vpcId -cnotmatch '^vpc-[0-9a-z]{17}$') {
                     throw [InvalidOperationException]::new($('''{0}'' does not match a valid id pattern.' -f $vpcId))
                 }
             }
-            if ($PSBoundParameters.ContainsKey('SubnetId')) {
+            if ($isExistsSbnId) {
                 foreach ($id in $SubnetId) {
                     if ($id -cnotmatch '^subnet-[0-9a-z]{17}$') {
                         throw [InvalidOperationException]::new($('''{0}'' does not match a valid id pattern.' -f $id))
@@ -135,12 +138,9 @@ Resource:                           # required
             }
 
             # If 'VpcId' or 'SubnetId' is passed from the parameter, it will overwrite the value in the sample template            
-            $isPresent_VpcId = $PSBoundParameters.ContainsKey('VpcId')
-            $isPresent_SubnetId = $PSBoundParameters.ContainsKey('SubnetId')
-
-            if ($isPresent_VpcId -or $isPresent_SubnetId) {
+            if ($isExistsVpcId -or $isExistsSbnId) {
                 $yaml = ConvertFrom-Yaml -Yaml $content -Ordered           
-                if ($isPresent_VpcId) {
+                if ($isExistsVpcId) {
                     foreach ($resource in 'SecurityGroup', 'NetworkAcl', 'PrefixList') {
                         foreach ($r in $yaml.Resource.$resource) {
                             if ($r.Contains('VpcId')) {
@@ -149,7 +149,7 @@ Resource:                           # required
                         }
                     }
                 }
-                if ($isPresent_SubnetId) {
+                if ($isExistsSbnId) {
                     foreach ($n in $yaml.Resource.NetworkACL) {
                         if ($n.Contains('AssociationSubnetId')) {
                             $n.AssociationSubnetId = $subnetId
