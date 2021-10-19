@@ -106,7 +106,7 @@ Push-Location -LiteralPath 'Pasm'
 code outline.yml
 ```
 
-Only validator processing can be called.
+`Invoke-PasmValidation` is implicitly called by `Invoke-PasmBlueprint` in the next step, but can also be called by itself.
 
 ```ps1
 Invoke-PasmValidation -FilePath outline.yml
