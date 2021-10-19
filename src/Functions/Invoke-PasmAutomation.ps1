@@ -26,12 +26,8 @@ function Invoke-PasmAutomation {
         try {
             $i = 0
             foreach ($file in $filePath) {
-
-                # Run the validator process
-                Invoke-PasmValidation -FilePath $file | Out-Null
-
                 # Convert yaml file
-                Invoke-PasmBlueprint -FilePath $file -OutputFileName $outputFileName[$i] -NoValidation | Out-Null
+                Invoke-PasmBlueprint -FilePath $file -OutputFileName $outputFileName[$i] | Out-Null
 
                 # Deploy resources
                 Invoke-PasmDeployment -FilePath $([path]::GetDirectoryName($file), $OutputFileName[$i] -join [path]::DirectorySeparatorChar)

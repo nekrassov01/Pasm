@@ -16,12 +16,7 @@ function Invoke-PasmBlueprint {
         [Parameter(Mandatory = $false)]
         [Alias('out')]
         [ValidateNotNullOrEmpty()]
-        [string[]]$OutputFileName = $('{0}.yml' -f [Pasm.Template.Name]::blueprint),
-
-        # Bypasses the validator call. Normally, this parameter should not be used.
-        [Parameter(Mandatory = $false)]
-        [Alias('nv')]
-        [switch]$NoValidation
+        [string[]]$OutputFileName = $('{0}.yml' -f [Pasm.Template.Name]::blueprint)
     )
 
     begin {
@@ -31,10 +26,8 @@ function Invoke-PasmBlueprint {
             # Load helper functions
             . $($PSScriptRoot, 'Helpers', 'Helpers.ps1' -join [path]::DirectorySeparatorChar)
 
-            # Run the validator process as default
-            if (!$PSBoundParameters.ContainsKey('NoValidation')) {
-                Invoke-PasmValidation -FilePath $filePath | Out-Null
-            }
+            # Implicitly run the validator process.
+            Invoke-PasmValidation -FilePath $filePath | Out-Null
 
             # Datetime variables
             $published = Get-AWSPublicIpAddressRange -OutputPublicationDate
