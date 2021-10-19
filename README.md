@@ -191,8 +191,8 @@ psmv -file 'C:\Pasm\outline.yml'
 ```
 
 ```ps1
-# Invoke-PasmBlueprint -FilePath 'C:\Pasm\outline.yml' -OutputFileName 'blueprint.yml' -NoValidation
-psmb -file 'C:\Pasm\outline.yml' -out 'blueprint.yml' -nv
+# Invoke-PasmBlueprint -FilePath 'C:\Pasm\outline.yml' -OutputFileName 'blueprint.yml'
+psmb -file 'C:\Pasm\outline.yml' -out 'blueprint.yml'
 ```
 
 ```ps1
