@@ -43,9 +43,6 @@ function Invoke-PasmDeployment {
                 Set-AWSCredential -ProfileName $obj.Common.ProfileName -Scope Local
                 Set-DefaultAWSRegion -Region $obj.Common.Region -Scope Local
 
-                # Create result object list
-                $result = [list[PSCustomObject]]::new()
-
                 # Deploy SecurityGroup: creating a new one if the resouce id does not exist, or updating the entry if it does
                 if ($resource.Contains('SecurityGroup')) {
                     foreach ($sg in $securityGroup) {
@@ -62,24 +59,16 @@ function Invoke-PasmDeployment {
 
                             # Add entries
                             if ($sg.FlowDirection -eq 'Ingress') {
-                                Grant-EC2SecurityGroupIngress -GroupId $target.GroupId -IpPermission $ipPermissions | Out-Null
+                                Grant-EC2SecurityGroupIngress -GroupId $target.GroupId -IpPermission $ipPermissions
                             }
                             if ($sg.FlowDirection -eq 'Egress') {
-                                Grant-EC2SecurityGroupEgress -GroupId $target.GroupId -IpPermission $ipPermissions | Out-Null
+                                Grant-EC2SecurityGroupEgress -GroupId $target.GroupId -IpPermission $ipPermissions
                             }
 
                             # Overwrite ResourceId
                             $sg.ResourceId = $target.GroupId
 
-                            # Add an object to the result list
-                            $result.Add( 
-                                [PSCustomObject]@{
-                                    ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
-                                    ResourceName = $target.GroupName
-                                    ResourceId = $target.GroupId
-                                    Action = 'Create'
-                                }
-                            )
+                            Out-PasmDeploymentResult -ResourceType SecurityGroup -ResourceName $target.GroupName -ResourceId $target.GroupId -Action 'Create'
                         }
                         else {
                             # Replacing entries
@@ -87,27 +76,19 @@ function Invoke-PasmDeployment {
                                 if ($target.IpPermissions) {
                                     Revoke-EC2SecurityGroupIngress -GroupId $target.GroupId -IpPermission $target.IpPermissions | Out-Null
                                 }
-                                Grant-EC2SecurityGroupIngress -GroupId $target.GroupId -IpPermission $ipPermissions | Out-Null
+                                Grant-EC2SecurityGroupIngress -GroupId $target.GroupId -IpPermission $ipPermissions
                             }
                             if ($sg.FlowDirection -eq 'Egress') {
                                 if ($target.IpPermissionsEgress) {
                                     Revoke-EC2SecurityGroupEgress  -GroupId $target.GroupId -IpPermission $target.IpPermissionsEgress | Out-Null
                                 }
-                                Grant-EC2SecurityGroupEgress -GroupId $target.GroupId -IpPermission $ipPermissions | Out-Null
+                                Grant-EC2SecurityGroupEgress -GroupId $target.GroupId -IpPermission $ipPermissions
                             }
 
                             # Overwrite ResourceId
                             $sg.ResourceId = $target.GroupId
 
-                            # Add an object to the result list
-                            $result.Add(
-                                [PSCustomObject]@{
-                                    ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
-                                    ResourceName = $target.GroupName
-                                    ResourceId = $target.GroupId
-                                    Action = 'Sync'
-                                }
-                            )
+                            Out-PasmDeploymentResult -ResourceType SecurityGroup -ResourceName $target.GroupName -ResourceId $target.GroupId -Action 'Sync'
                         }
                     }
                 }
@@ -131,15 +112,7 @@ function Invoke-PasmDeployment {
                             # Overwrite ResourceId
                             $nacl.ResourceId = $target.NetworkAclId
 
-                            # Add an object to the result list
-                            $result.Add(
-                                [PSCustomObject]@{
-                                    ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
-                                    ResourceName = $target.Tags.Value
-                                    ResourceId = $target.NetworkAclId
-                                    Action = 'Create'
-                                }
-                            )
+                            Out-PasmDeploymentResult -ResourceType NetworkAcl -ResourceName $target.Tags.Value -ResourceId $target.NetworkAclId -Action 'Create'
                         }
                         else {
                             $naclIngressRuleNumbers = $target.Entries.Where( { $_.Egress -eq $false -and $_.RuleNumber -ne 32767 } ).RuleNumber
@@ -147,10 +120,10 @@ function Invoke-PasmDeployment {
 
                             # Remove entries from the network acl
                             foreach ($naclIngressRuleNumber in $naclIngressRuleNumbers) {
-                                Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclIngressRuleNumber -Egress $false -Confirm:$false | Out-Null
+                                Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclIngressRuleNumber -Egress $false -Confirm:$false
                             }
                             foreach ($naclEgressRuleNumber in $naclEgressRuleNumbers) {
-                                Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclEgressRuleNumber  -Egress $true  -Confirm:$false | Out-Null
+                                Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclEgressRuleNumber  -Egress $true  -Confirm:$false
                             }
 
                             # Add entries to the network acl
@@ -159,15 +132,7 @@ function Invoke-PasmDeployment {
                             # Overwrite ResourceId
                             $nacl.ResourceId = $target.NetworkAclId
 
-                            # Add an object to the result list
-                            $result.Add(
-                                [PSCustomObject]@{
-                                    ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
-                                    ResourceName = $target.Tags.Value
-                                    ResourceId = $target.NetworkAclId
-                                    Action = 'Sync'
-                                }
-                            )
+                            Out-PasmDeploymentResult -ResourceType NetworkAcl -ResourceName $target.Tags.Value -ResourceId $target.NetworkAclId -Action 'Sync'
                         }
                     }
                 }
@@ -196,15 +161,7 @@ function Invoke-PasmDeployment {
                             # Overwrite ResourceId
                             $pl.ResourceId = $target.PrefixListId
 
-                            # Add an object to the result list
-                            $result.Add( 
-                                [PSCustomObject]@{
-                                    ResourceType = [Pasm.Parameter.Resource]::PrefixList
-                                    ResourceName = $target.PrefixListName
-                                    ResourceId = $target.PrefixListId
-                                    Action = 'Create'
-                                }
-                            )
+                            Out-PasmDeploymentResult -ResourceType PrefixList -ResourceName $target.PrefixListName -ResourceId $target.PrefixListId -Action 'Create'
                         }
                         else {
                             $existingEntries = Get-EC2ManagedPrefixListEntry -PrefixListId $target.PrefixListId
@@ -253,21 +210,10 @@ function Invoke-PasmDeployment {
                             # Overwrite ResourceId
                             $pl.ResourceId = $target.PrefixListId
 
-                            # Add an object to the result list
-                            $result.Add(
-                                [PSCustomObject]@{
-                                    ResourceType = [Pasm.Parameter.Resource]::PrefixList
-                                    ResourceName = $target.PrefixListName
-                                    ResourceId = $target.PrefixListId
-                                    Action = 'Sync'
-                                }
-                            )
+                            Out-PasmDeploymentResult -ResourceType PrefixList -ResourceName $target.PrefixListName -ResourceId $target.PrefixListId -Action 'Sync'
                         }
                     }
                 }
-
-                # Return result list
-                $PSCmdlet.WriteObject($result)
 
                 # Clear AWS default settings for this session
                 Clear-AWSDefaultConfiguration -SkipProfileStore
@@ -275,14 +221,12 @@ function Invoke-PasmDeployment {
                 # Update metadata section
                 if ($obj.Contains('MetaData')) {
                     $metadata = [ordered]@{}
-                    $metadata.UpdateNumber = if ($obj.MetaData.Contains('UpdateNumber')) { $obj.MetaData.UpdateNumber }
+                    $metadata.UpdateNumber = $obj.MetaData.UpdateNumber
                     $metadata.DeployNumber = if ($obj.MetaData.Contains('DeployNumber')) { $obj.MetaData.DeployNumber + 1 } else { 1 }
-                    $metadata.CleanUpNumber = if ($obj.MetaData.Contains('CleanUpNumber')) { $obj.MetaData.CleanUpNumber }
-                    $metadata.PublishedAt = if ($obj.MetaData.Contains('PublishedAt')) { $obj.MetaData.PublishedAt }
-                    $metadata.CreatedAt = if ($obj.MetaData.Contains('CreatedAt')) { $obj.MetaData.CreatedAt }
-                    $metadata.UpdatedAt = if ($obj.MetaData.Contains('UpdatedAt')) { $obj.MetaData.UpdatedAt }
-                    $metadata.DeployedAt = [datetime]::Now.ToUniversalTime()
-                    $metadata.CleandAt = if ($obj.MetaData.Contains('CleandAt')) { $obj.MetaData.CleandAt }
+                    $metadata.PublishedAt = Get-AWSPublicIpAddressRange -OutputPublicationDate
+                    $metadata.CreatedAt = ([datetime]$obj.MetaData.CreatedAt).ToUniversalTime()
+                    $metadata.UpdatedAt = ([datetime]$obj.MetaData.UpdatedAt).ToUniversalTime()
+                    $metadata.DeployedAt = (Get-Date).ToUniversalTime()
                     $obj.MetaData = $metadata
                 }
 

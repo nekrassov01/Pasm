@@ -51,7 +51,6 @@ $map = @{
     'psmb' = 'Invoke-PasmBlueprint'
     'psmd' = 'Invoke-PasmDeployment'
     'psma' = 'Invoke-PasmAutomation'
-    'psmc' = 'Invoke-PasmCleanUp'
 }
 foreach ($m in $map.GetEnumerator()) {
     Set-Alias -Name $m.Key -Value $m.Value
