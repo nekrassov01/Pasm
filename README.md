@@ -15,6 +15,7 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
     - [Editing and Validation](#editing-and-validation)
     - [Generating Blueprint](#generating-blueprint)
     - [Deployment](#deployment)
+    - [Clean up](#clean-up)
   - [Same Thing, Shorter](#same-thing-shorter)
   - [Aliases](#aliases)
   - [Sample Template (outline.yml)](#sample-template-outlineyml)
@@ -59,6 +60,7 @@ Pasm includes 5 functions.
 |Invoke-PasmBlueprint|Based on the Yaml template, get the range of ip from [ip-ranges.json](https://ip-ranges.amazonaws.com/ip-ranges.json) and create a blueprint.|
 |Invoke-PasmDeployment|Read the blueprint and deploy resources.|
 |Invoke-PasmAutomation|Run the following in order: `Invoke-PasmValidation`, `Invoke-PasmBlueprint`, and `Invoke-PasmDeployment`|
+|Invoke-PasmCleanUp|Clean up the deployed resources.|
 
 ## Configuration Files
 
@@ -160,6 +162,34 @@ SecurityGroup test-sg-01   sg-qaz741wsx852edc96  Create
    PrefixList test-pl-01   pl-poilkjmnb159753az  Create
 ```
 
+### Clean up
+
+Clean up the deployed resources. Force detach of associated resources. Skip requester-managed ENIs, as they cannot be detached.
+
+```ps1
+Invoke-PasmCleanUp -FilePath blueprint.yml
+```
+
+```text
+ResourceType : SecurityGroup
+ResourceName : test-sg-01
+ResourceId   : sg-0192837465qpwoeir
+Action       : Skip
+Associated   : {eni-q1e2a3d4z5cxvsfwr, eni-w1r2s3f4x5vetdgcb}
+
+ResourceType : NetworkAcl
+ResourceName : test-acl-01
+ResourceId   : acl-e1t2d3g4c5bryfhvn
+Action       : CleanUp
+Associated   : {subnet-q1z2x3w4e5cvrtbny, subnet-w1x2c3e4r5vbtynmu}
+
+ResourceType : PrefixList
+ResourceName : test-pl-01
+ResourceId   : pl-a1d2s3f4d5gfhgjhk
+Action       : CleanUp
+Associated   : {rtb-a1b2c3d4e5fghijkl, rtb-x1y2z3x4y5zxyzxyz, sg-1a2s3d4f5g6h7j890}
+```
+
 ## Same Thing, Shorter
 
 `Invoke-PasmAutomation` runs the following in order: `Invoke-PasmValidation`, `Invoke-PasmBlueprint`, and `Invoke-PasmDeployment`.
@@ -203,6 +233,11 @@ psmd -file 'C:\Pasm\blueprint.yml'
 ```ps1
 # Invoke-PasmAutomation -FilePath 'C:\Pasm\blueprint.yml' -OutputFileName 'blueprint.yml'
 psma -file 'C:\Pasm\outline.yml' -out 'blueprint.yml'
+```
+
+```ps1
+# Invoke-PasmCleanUp -FilePath 'C:\Pasm\blueprint.yml'
+psmc -file 'C:\Pasm\blueprint.yml'
 ```
 
 ## Sample Template (outline.yml)

@@ -31,7 +31,8 @@ function Invoke-PasmBlueprint {
 
             # Datetime variables
             $published = Get-AWSPublicIpAddressRange -OutputPublicationDate
-            $now = (Get-Date).ToUniversalTime()
+            $now = [datetime]::Now.ToUniversalTime()
+            $datetimeFormat = 'yyyyMMddHHmmss'
 
             # Validation that the number of parameters match
             if ($filePath.Length -ne $outputFileName.Length) {
@@ -65,10 +66,12 @@ function Invoke-PasmBlueprint {
                 $metadata = [ordered]@{}
                 $metadata.UpdateNumber = if ($update) { [int]$dest.Metadata.UpdateNumber + 1 } else { 1 }
                 $metadata.DeployNumber = if ($update) { [int]$dest.Metadata.DeployNumber } else { 0 }
+                $metadata.CleanUpNumber = if ($update) { [int]$dest.Metadata.CleanUpNumber } else { 0 }
                 $metadata.PublishedAt = $published
                 $metadata.CreatedAt = if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime() } else { $now }
                 $metadata.UpdatedAt = $now
-                $metadata.DeployedAt = if ($update) { ([datetime]$dest.Metadata.DeployedAt).ToUniversalTime() } else { (Get-Date -Date '1970/1/1 0:0:0 GMT').ToUniversalTime() }
+                $metadata.DeployedAt = if ($update) { ([datetime]$dest.Metadata.DeployedAt).ToUniversalTime() } else { [datetime]::UnixEpoch }
+                $metadata.CleandAt = if ($update) { ([datetime]$dest.Metadata.CleandAt).ToUniversalTime() } else { [datetime]::UnixEpoch }
 
                 # Rresource variables
                 $resource = $obj.Resource
@@ -121,9 +124,9 @@ function Invoke-PasmBlueprint {
                                 $range.Description = 'Service:{0} Region:{1} Published:{2} Created:{3} Updated:{4}' -f (
                                     $rule.ServiceKey, 
                                     $r.Region, 
-                                    $published.ToString('yyyy-MM-dd-HH-mm-ss'), 
-                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString('yyyy-MM-dd-HH-mm-ss') } else { $now.ToString('yyyy-MM-dd-HH-mm-ss') }), 
-                                    $now.ToString('yyyy-MM-dd-HH-mm-ss')
+                                    $published.ToString($datetimeFormat), 
+                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString($datetimeFormat) } else { $now.ToString($datetimeFormat) }), 
+                                    $now.ToString($datetimeFormat)
                                 )
                                 $sgRangesContainer.Add($range)
                                 $num++
@@ -251,9 +254,9 @@ function Invoke-PasmBlueprint {
                                 $range.Description = 'Service:{0} Region:{1} Published:{2} Created:{3} Updated:{4}' -f (
                                     $rule.ServiceKey, 
                                     $r.Region, 
-                                    $published.ToString('yyyy-MM-dd-HH-mm-ss'), 
-                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString('yyyy-MM-dd-HH-mm-ss') } else { $now.ToString('yyyy-MM-dd-HH-mm-ss') }), 
-                                    $now.ToString('yyyy-MM-dd-HH-mm-ss')
+                                    $published.ToString($datetimeFormat), 
+                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString($datetimeFormat) } else { $now.ToString($datetimeFormat) }), 
+                                    $now.ToString($datetimeFormat)
                                 )
                                 $plRangesContainer.Add($range)
                                 $num++
