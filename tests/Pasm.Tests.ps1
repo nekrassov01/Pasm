@@ -109,7 +109,10 @@ function script:Remove-PasmTestResource {
     # Remove security group
     if ($blueprint.Resource.Contains('SecurityGroup')) {
         foreach ($sg in $blueprint.Resource.SecurityGroup) {
-            Remove-EC2SecurityGroup -GroupId $sg.ResourceId -Force -Confirm:$false
+            $isExists = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $sg.ResourceId }
+            if ($isExists) {
+                Remove-EC2SecurityGroup -GroupId $sg.ResourceId -Force -Confirm:$false
+            }
         }
     }
 
@@ -117,15 +120,18 @@ function script:Remove-PasmTestResource {
     if ($blueprint.Resource.Contains('NetworkAcl')) {
         foreach ($nacl in $blueprint.Resource.NetworkAcl) {
             if ($nacl.Contains('AssociationSubnetId')) {
-                $filter = @(
-                    @{ Name = 'vpc-id'; Values = $nacl.VpcId },
-                    @{ Name = 'default'; Values = 'true' }
-                )
-                $assocs = (Get-EC2NetworkAcl -NetworkAclId $nacl.ResourceId).Associations.NetworkAclAssociationId
-                foreach ($assoc in $assocs) {
-                    Set-EC2NetworkAclAssociation -NetworkAclId (Get-EC2NetworkAcl -Filter $filter).NetworkAclId -AssociationId $assoc -Force -Confirm:$false
+                $isExists = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
+                if ($isExists) {
+                    $filter = @(
+                        @{ Name = 'vpc-id'; Values = $nacl.VpcId },
+                        @{ Name = 'default'; Values = 'true' }
+                    )
+                    $assocs = (Get-EC2NetworkAcl -NetworkAclId $nacl.ResourceId).Associations.NetworkAclAssociationId
+                    foreach ($assoc in $assocs) {
+                        Set-EC2NetworkAclAssociation -NetworkAclId (Get-EC2NetworkAcl -Filter $filter).NetworkAclId -AssociationId $assoc -Force -Confirm:$false
+                    }
+                    Remove-EC2NetworkAcl -NetworkAclId $nacl.ResourceId -Force -Confirm:$false
                 }
-                Remove-EC2NetworkAcl -NetworkAclId $nacl.ResourceId -Force -Confirm:$false
             }
         }
     }
@@ -133,7 +139,10 @@ function script:Remove-PasmTestResource {
     # Remove prefix list
     if ($blueprint.Resource.Contains('PrefixList')) {
         foreach ($pl in $blueprint.Resource.PrefixList) {
-            Remove-EC2ManagedPrefixList -PrefixListId $pl.ResourceId -Force -Confirm:$false
+            $isExists = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-id'; Values = $pl.ResourceId }
+            if ($isExists) {
+                Remove-EC2ManagedPrefixList -PrefixListId $pl.ResourceId -Force -Confirm:$false
+            }
         }
     }         
 
@@ -219,6 +228,9 @@ InModuleScope 'Pasm' {
                 It 'Deployment: Sync' {
                     Invoke-PasmDeployment -FilePath $blueprintFilePath | Should -BeTrue
                 }
+                It 'CleanUp' {
+                    Invoke-PasmCleanUp -FilePath $blueprintFilePath | Should -BeTrue
+                }
             }
             AfterAll {
                 Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath
@@ -243,6 +255,9 @@ InModuleScope 'Pasm' {
                 }
                 It 'Deployment: Sync' {
                     Invoke-PasmDeployment -FilePath $blueprintFilePath | Should -BeTrue
+                }
+                It 'CleanUp' {
+                    Invoke-PasmCleanUp -FilePath $blueprintFilePath | Should -BeTrue
                 }
             }
             AfterAll {
@@ -410,6 +425,9 @@ InModuleScope 'Pasm' {
                 }
                 It 'Alias: psma' {
                     psma -file $outlineFilePath -out $blueprintFileName | Should -BeTrue
+                }
+                It 'Alias: psmc' {
+                    psmc -file $blueprintFilePath | Should -BeTrue
                 }
                 AfterAll {
                     Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath

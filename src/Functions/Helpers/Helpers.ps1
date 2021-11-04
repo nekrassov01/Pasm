@@ -7,7 +7,7 @@ using namespace Amazon.EC2.Model
 
 # Convert an array of key names to a string (Helper for helper functions)
 function Get-ArrayToString {
-    param(
+    param (
         [string[]]$Array
     )
     if (1 -eq @($array).Length) {
@@ -469,22 +469,4 @@ function New-PasmPrefixListEntry {
         }
         return $entries
     }
-}
-
-# Create an object to output the deployment result to the console
-function Out-PasmDeploymentResult {
-    param (
-        [Pasm.Parameter.Resource]$ResourceType,
-        [string]$ResourceName,
-        [string]$ResourceId,
-        [string]$Action
-    )
-    $obj = 
-    [PSCustomObject]@{
-        ResourceType = $resourceType
-        ResourceName = $resourceName
-        ResourceId = $resourceId
-        Action = $action
-    }
-    return $obj
 }
