@@ -44,7 +44,7 @@ function Invoke-PasmDeployment {
                 Set-DefaultAWSRegion -Region $obj.Common.Region -Scope Local
 
                 # Create result object list
-                $result = [list[PSCustomObject]]::new()
+                $ret = [list[PSCustomObject]]::new()
 
                 # Deploy SecurityGroup: creating a new one if the resouce id does not exist, or updating the entry if it does
                 if ($resource.Contains('SecurityGroup')) {
@@ -72,7 +72,7 @@ function Invoke-PasmDeployment {
                             $sg.ResourceId = $target.GroupId
 
                             # Add an object to the result list
-                            $result.Add( 
+                            $ret.Add( 
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
                                     ResourceName = $target.GroupName
@@ -100,7 +100,7 @@ function Invoke-PasmDeployment {
                             $sg.ResourceId = $target.GroupId
 
                             # Add an object to the result list
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
                                     ResourceName = $target.GroupName
@@ -132,7 +132,7 @@ function Invoke-PasmDeployment {
                             $nacl.ResourceId = $target.NetworkAclId
 
                             # Add an object to the result list
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
                                     ResourceName = $target.Tags.Value
@@ -160,7 +160,7 @@ function Invoke-PasmDeployment {
                             $nacl.ResourceId = $target.NetworkAclId
 
                             # Add an object to the result list
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
                                     ResourceName = $target.Tags.Value
@@ -197,7 +197,7 @@ function Invoke-PasmDeployment {
                             $pl.ResourceId = $target.PrefixListId
 
                             # Add an object to the result list
-                            $result.Add( 
+                            $ret.Add( 
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::PrefixList
                                     ResourceName = $target.PrefixListName
@@ -254,7 +254,7 @@ function Invoke-PasmDeployment {
                             $pl.ResourceId = $target.PrefixListId
 
                             # Add an object to the result list
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::PrefixList
                                     ResourceName = $target.PrefixListName
@@ -267,7 +267,7 @@ function Invoke-PasmDeployment {
                 }
 
                 # Return result list
-                $PSCmdlet.WriteObject($result)
+                $PSCmdlet.WriteObject($ret)
 
                 # Clear AWS default settings for this session
                 Clear-AWSDefaultConfiguration -SkipProfileStore

@@ -44,7 +44,7 @@ function Invoke-PasmCleanUp {
                 Set-DefaultAWSRegion -Region $obj.Common.Region -Scope Local
                 
                 # Create result object list
-                $result = [list[PSCustomObject]]::new()
+                $ret = [list[PSCustomObject]]::new()
 
                 # Detach SecurityGroup association: ENI
                 # Remove SecurityGroup
@@ -53,27 +53,37 @@ function Invoke-PasmCleanUp {
                         $target = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $sg.ResourceId }
                         if ($null -ne $target) {
                             $groupList = [list[string]]::new()
+                            $detachedList = [list[string]]::new()
+                            $remainingList = [list[string]]::new()
                             $action = 'CleanUp'
                             
                             # Get the ENI to which the target security group is attached
                             $eni = Get-EC2NetworkInterface -Filter @{ Name = 'group-id'; Values = $sg.ResourceId }
                             if ($eni) {
                                 # If it is a requester-managed ENI, it cannot be detached, so skip this step.
-                                if ($eni.RequesterManaged -contains $true) {
-                                    $action = 'Skip'
-                                }
-                                if ($eni.RequesterManaged -notcontains $true) {
-                                    foreach ($groupId in $eni.Groups.GroupId) {
-                                        if ($groupId -ne $sg.ResourceId) {
-                                            $groupList.Add($groupId)
-                                        }
-                                    }
-                                    if ($groupList) {
-                                        Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $eni.NetworkInterfaceId -Group $groupList | Out-Null
+                                foreach ($e in $eni) {
+                                    if ($e.RequesterManaged -eq $true) {
+                                        $action = 'Skip'
+                                        $remainingList.Add($e.NetworkInterfaceId)
                                     }
                                     else {
-                                        $defaultSg = Get-EC2SecurityGroup -Filter @(@{ Name = 'group-name'; Values = 'default' }; @{ Name = 'vpc-id'; Values = $sg.VpcId })
-                                        Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $eni.NetworkInterfaceId -Group $defaultSg.GroupId | Out-Null
+                                        foreach ($groupId in $e.Groups.GroupId) {
+                                            if ($groupId -ne $sg.ResourceId) {
+                                                $groupList.Add($groupId)
+                                            }
+                                        }
+                                        if ($groupList) {
+                                            Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $e.NetworkInterfaceId -Group $groupList | Out-Null
+                                        }
+                                        else {
+                                            $filter = @(
+                                                @{ Name = 'group-name'; Values = 'default' }
+                                                @{ Name = 'vpc-id'; Values = $sg.VpcId }
+                                            )
+                                            $defaultSg = Get-EC2SecurityGroup -Filter $filter
+                                            Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $e.NetworkInterfaceId -Group $defaultSg.GroupId | Out-Null
+                                        }
+                                        $detachedList.Add($e.NetworkInterfaceId)
                                     }
                                 }
                             }
@@ -81,13 +91,14 @@ function Invoke-PasmCleanUp {
                                 Remove-EC2SecurityGroup -GroupId $sg.ResourceId -Confirm:$false | Out-Null
                             }
 
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
                                     ResourceName = $target.GroupName
                                     ResourceId = $target.GroupId
+                                    Detached = if ($detachedList) { @($detachedList) } else { $null }
+                                    Skipped = if ($remainingList) { @($remainingList) } else { $null }
                                     Action = $action
-                                    Associated = if ($eni) { @($eni.NetworkInterfaceId) } else { $null }
                                 }
                             )
 
@@ -114,13 +125,14 @@ function Invoke-PasmCleanUp {
                             }
                             Remove-EC2NetworkAcl -NetworkAclId $nacl.ResourceId -Confirm:$false | Out-Null
 
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
                                     ResourceName = $target.Tags.Value
                                     ResourceId = $target.NetworkAclId
+                                    Detached = if ($naclAssocs) { $naclAssocs.SubnetId } else { $null }
+                                    Skipped = $null
                                     Action = 'CleanUp'
-                                    Associated = if ($target) { $target.Associations.SubnetId } else { $null }
                                 }
                             )
                         }
@@ -139,11 +151,11 @@ function Invoke-PasmCleanUp {
                                     if ($plAssoc.ResourceId -match '^sg-[0-9a-z]{17}$') {
                                         $targetSg = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $plAssoc.ResourceId }
                                         if ($targetSg) {
-                                            $ingressEntry = $targetSg.IpPermissions.Where({ $_.PrefixListIds })
+                                            $ingressEntry = $targetSg.IpPermissions.Where( { $_.PrefixListIds } )
                                             if ($ingressEntry) {
                                                 Revoke-EC2SecurityGroupIngress -GroupId $plAssoc.ResourceId -IpPermission $ingressEntry | Out-Null
                                             }
-                                            $egressEntry = $targetSg.IpPermissionsEgress.Where({ $_.PrefixListIds })
+                                            $egressEntry = $targetSg.IpPermissionsEgress.Where( { $_.PrefixListIds } )
                                             if ($egressEntry) {
                                                 Revoke-EC2SecurityGroupEgress -GroupId $plAssoc.ResourceId -IpPermission $egressEntry | Out-Null
                                             }
@@ -161,13 +173,14 @@ function Invoke-PasmCleanUp {
                             }
                             Remove-EC2ManagedPrefixList -PrefixListId $pl.ResourceId -Confirm:$false | Out-Null
 
-                            $result.Add(
+                            $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::PrefixList
                                     ResourceName = $target.PrefixListName
                                     ResourceId = $target.PrefixListId
+                                    Detached = if ($plAssocs) { @($plAssocs.ResourceId) } else { $null }
+                                    Skipped = $null
                                     Action = 'CleanUp'
-                                    Associated = if ($plAssocs) { @($plAssocs.ResourceId) } else { $null }
                                 }
                             )
                         }
@@ -175,7 +188,7 @@ function Invoke-PasmCleanUp {
                 }
 
                 # Return result list
-                $PSCmdlet.WriteObject($result)
+                $PSCmdlet.WriteObject($ret)
 
                 # Clear AWS default settings for this session
                 Clear-AWSDefaultConfiguration -SkipProfileStore
