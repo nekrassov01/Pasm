@@ -76,11 +76,7 @@ function Invoke-PasmCleanUp {
                                             Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $e.NetworkInterfaceId -Group $groupList | Out-Null
                                         }
                                         else {
-                                            $filter = @(
-                                                @{ Name = 'group-name'; Values = 'default' }
-                                                @{ Name = 'vpc-id'; Values = $sg.VpcId }
-                                            )
-                                            $defaultSg = Get-EC2SecurityGroup -Filter $filter
+                                            $defaultSg = Get-EC2SecurityGroup -Filter @(@{ Name = 'group-name'; Values = 'default' }; @{ Name = 'vpc-id'; Values = $sg.VpcId })
                                             Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $e.NetworkInterfaceId -Group $defaultSg.GroupId | Out-Null
                                         }
                                         $detachedList.Add($e.NetworkInterfaceId)
@@ -112,7 +108,7 @@ function Invoke-PasmCleanUp {
                     foreach ($nacl in $networkAcl) {
                         $target = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
                         if ($null -ne $target) {
-                            if ($nacl.AssociationSubnetId) {
+                            if ($nacl.Contains('AssociationSubnetId')) {
                                 foreach ($subnetId in $nacl.AssociationSubnetId) {
                                     $naclAssocs = (Get-EC2NetworkAcl -Filter @{ Name = 'association.subnet-id'; Values = $subnetId }).Associations
                                     if ($naclAssocs.NetworkAclAssociationId) {
@@ -186,13 +182,7 @@ function Invoke-PasmCleanUp {
                         }
                     }
                 }
-
-                # Return result list
-                $PSCmdlet.WriteObject($ret)
-
-                # Clear AWS default settings for this session
-                Clear-AWSDefaultConfiguration -SkipProfileStore
-
+                
                 # Update metadata section
                 if ($obj.Contains('MetaData')) {
                     $metadata = [ordered]@{}
@@ -200,15 +190,21 @@ function Invoke-PasmCleanUp {
                     $metadata.DeployNumber = if ($obj.MetaData.Contains('DeployNumber')) { $obj.MetaData.DeployNumber }
                     $metadata.CleanUpNumber = if ($obj.MetaData.Contains('CleanUpNumber')) { $obj.MetaData.CleanUpNumber + 1 } else { 1 }
                     $metadata.PublishedAt = if ($obj.MetaData.Contains('PublishedAt')) { $obj.MetaData.PublishedAt }
-                    $metadata.CreatedAt = if ($obj.MetaData.Contains('CreatedAt')) { $obj.MetaData.CreatedAt }
-                    $metadata.UpdatedAt = if ($obj.MetaData.Contains('UpdatedAt')) { $obj.MetaData.UpdatedAt }
-                    $metadata.DeployedAt = if ($obj.MetaData.Contains('DeployedAt')) { $obj.MetaData.DeployedAt }
+                    $metadata.CreatedAt = if ($obj.MetaData.Contains('CreatedAt')) { ([datetime]$obj.Metadata.CreatedAt).ToUniversalTime() }
+                    $metadata.UpdatedAt = if ($obj.MetaData.Contains('UpdatedAt')) { ([datetime]$obj.Metadata.UpdatedAt).ToUniversalTime() }
+                    $metadata.DeployedAt = if ($obj.MetaData.Contains('DeployedAt')) { ([datetime]$obj.Metadata.DeployedAt).ToUniversalTime() }
                     $metadata.CleandAt = [datetime]::Now.ToUniversalTime()
                     $obj.MetaData = $metadata
                 }
-
+                
                 # Convert the object to Yaml format and overwrite the file
                 $obj | ConvertTo-Yaml -OutFile $file -Force
+                
+                # Return result list
+                $PSCmdlet.WriteObject($ret)
+            
+                # Clear AWS default settings for this session
+                Clear-AWSDefaultConfiguration -SkipProfileStore
             }
         }
         catch {

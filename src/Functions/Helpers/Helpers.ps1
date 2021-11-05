@@ -442,7 +442,7 @@ function New-PasmNetworkAclEntry {
                 Name = 'association.subnet-id'
                 Values = @($inputObject.AssociationSubnetId)
             }
-            $associationIds = (Get-EC2NetworkAcl -Filter $filter).Associations.Where{ $_.SubnetId -in $filter.Values }.NetworkAclAssociationId
+            $associationIds = (Get-EC2NetworkAcl -Filter $filter).Associations.Where( { $_.SubnetId -in $filter.Values } ).NetworkAclAssociationId
             foreach ($associationId in $associationIds) {
                 Set-EC2NetworkAclAssociation -NetworkAclId $networkAcl.NetworkAclId -AssociationId $associationId | Out-Null
             }

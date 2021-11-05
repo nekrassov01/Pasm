@@ -174,20 +174,23 @@ Invoke-PasmCleanUp -FilePath blueprint.yml
 ResourceType : SecurityGroup
 ResourceName : test-sg-01
 ResourceId   : sg-0192837465qpwoeir
+Detached     : {eni-q1e2a3d4z5cxvsfwr}
+Skipped      : {eni-w1r2s3f4x5vetdgcb}
 Action       : Skip
-Associated   : {eni-q1e2a3d4z5cxvsfwr, eni-w1r2s3f4x5vetdgcb}
 
 ResourceType : NetworkAcl
 ResourceName : test-acl-01
 ResourceId   : acl-e1t2d3g4c5bryfhvn
+Detached     : {subnet-q1z2x3w4e5cvrtbny, subnet-w1x2c3e4r5vbtynmu}
+Skipped      :
 Action       : CleanUp
-Associated   : {subnet-q1z2x3w4e5cvrtbny, subnet-w1x2c3e4r5vbtynmu}
 
 ResourceType : PrefixList
 ResourceName : test-pl-01
 ResourceId   : pl-a1d2s3f4d5gfhgjhk
+Detached     : {rtb-a1b2c3d4e5fghijkl, rtb-x1y2z3x4y5zxyzxyz, sg-1a2s3d4f5g6h7j890}
+Skipped      :
 Action       : CleanUp
-Associated   : {rtb-a1b2c3d4e5fghijkl, rtb-x1y2z3x4y5zxyzxyz, sg-1a2s3d4f5g6h7j890}
 ```
 
 ## Same Thing, Shorter

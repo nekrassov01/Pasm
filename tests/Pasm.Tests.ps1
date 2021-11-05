@@ -122,13 +122,10 @@ function script:Remove-PasmTestResource {
             if ($nacl.Contains('AssociationSubnetId')) {
                 $isExists = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
                 if ($isExists) {
-                    $filter = @(
-                        @{ Name = 'vpc-id'; Values = $nacl.VpcId },
-                        @{ Name = 'default'; Values = 'true' }
-                    )
                     $assocs = (Get-EC2NetworkAcl -NetworkAclId $nacl.ResourceId).Associations.NetworkAclAssociationId
                     foreach ($assoc in $assocs) {
-                        Set-EC2NetworkAclAssociation -NetworkAclId (Get-EC2NetworkAcl -Filter $filter).NetworkAclId -AssociationId $assoc -Force -Confirm:$false
+                        $targetNacl = Get-EC2NetworkAcl -Filter @(@{ Name = 'vpc-id'; Values = $nacl.VpcId }; @{ Name = 'default'; Values = 'true' })
+                        Set-EC2NetworkAclAssociation -NetworkAclId $targetNacl.NetworkAclId -AssociationId $assoc -Force -Confirm:$false
                     }
                     Remove-EC2NetworkAcl -NetworkAclId $nacl.ResourceId -Force -Confirm:$false
                 }
