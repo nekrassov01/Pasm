@@ -432,7 +432,6 @@ InModuleScope 'Pasm' {
             }
         }
         AfterAll {
-            $workingDirectory = $PSScriptRoot, '.work' -join $sepalator
             Remove-Item -LiteralPath $workingDirectory -Recurse -Force | Out-Null
             Remove-PasmTestVpc $obj
         }

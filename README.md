@@ -174,8 +174,8 @@ Invoke-PasmCleanUp -FilePath blueprint.yml
 ResourceType : SecurityGroup
 ResourceName : test-sg-01
 ResourceId   : sg-0192837465qpwoeir
-Detached     : {eni-q1e2a3d4z5cxvsfwr}
-Skipped      : {eni-w1r2s3f4x5vetdgcb}
+Detached     : eni-q1e2a3d4z5cxvsfwr
+Skipped      : eni-w1r2s3f4x5vetdgcb
 Action       : Skip
 
 ResourceType : NetworkAcl
