@@ -58,9 +58,9 @@ function Invoke-PasmCleanUp {
                             $action = 'CleanUp'
                             
                             # Get the ENI to which the target security group is attached
-                            $eni = Get-EC2NetworkInterface -Filter @{ Name = 'group-id'; Values = $sg.ResourceId }
+                            $eni = Get-EC2NetworkInterface -Filter @{ Name = 'group-id'; Values = $target.GroupId }
                             if ($eni) {
-                                # If it is a requester-managed ENI, it cannot be detached, so skip this step.
+                                # If it is a requester-managed ENI, it cannot be detached, so skip this step
                                 foreach ($e in $eni) {
                                     if ($e.RequesterManaged -eq $true) {
                                         $action = 'Skip'
@@ -68,7 +68,7 @@ function Invoke-PasmCleanUp {
                                     }
                                     else {
                                         foreach ($groupId in $e.Groups.GroupId) {
-                                            if ($groupId -ne $sg.ResourceId) {
+                                            if ($groupId -ne $target.GroupId) {
                                                 $groupList.Add($groupId)
                                             }
                                         }
@@ -76,7 +76,7 @@ function Invoke-PasmCleanUp {
                                             Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $e.NetworkInterfaceId -Group $groupList | Out-Null
                                         }
                                         else {
-                                            $defaultSg = Get-EC2SecurityGroup -Filter @(@{ Name = 'group-name'; Values = 'default' }; @{ Name = 'vpc-id'; Values = $sg.VpcId })
+                                            $defaultSg = Get-EC2SecurityGroup -Filter @(@{ Name = 'group-name'; Values = 'default' }; @{ Name = 'vpc-id'; Values = $target.VpcId })
                                             Edit-EC2NetworkInterfaceAttribute -NetworkInterfaceId $e.NetworkInterfaceId -Group $defaultSg.GroupId | Out-Null
                                         }
                                         $detachedList.Add($e.NetworkInterfaceId)
@@ -84,7 +84,7 @@ function Invoke-PasmCleanUp {
                                 }
                             }
                             if ((!$eni) -or ($eni -and $eni.RequesterManaged -notcontains $true)) {
-                                Remove-EC2SecurityGroup -GroupId $sg.ResourceId -Confirm:$false | Out-Null
+                                Remove-EC2SecurityGroup -GroupId $target.GroupId -Confirm:$false | Out-Null
                             }
 
                             $ret.Add(
@@ -92,8 +92,8 @@ function Invoke-PasmCleanUp {
                                     ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
                                     ResourceName = $target.GroupName
                                     ResourceId = $target.GroupId
-                                    Detached = if ($detachedList) { @($detachedList) } else { $null }
-                                    Skipped = if ($remainingList) { @($remainingList) } else { $null }
+                                    Detached = if ($detachedList) { @($detachedList) } else { @{} }
+                                    Skipped = if ($remainingList) { @($remainingList) } else { @{} }
                                     Action = $action
                                 }
                             )
@@ -108,26 +108,24 @@ function Invoke-PasmCleanUp {
                     foreach ($nacl in $networkAcl) {
                         $target = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
                         if ($null -ne $target) {
-                            if ($nacl.Contains('AssociationSubnetId')) {
-                                foreach ($subnetId in $nacl.AssociationSubnetId) {
-                                    $naclAssocs = (Get-EC2NetworkAcl -Filter @{ Name = 'association.subnet-id'; Values = $subnetId }).Associations
-                                    if ($naclAssocs.NetworkAclAssociationId) {
-                                        $defautlNacl = Get-EC2NetworkAcl -Filter @(@{ Name = 'default'; Values = 'true' }; @{ Name = 'vpc-id'; Values = $nacl.VpcId })
-                                        foreach ($naclAssoc in $naclAssocs) {
-                                            Set-EC2NetworkAclAssociation -NetworkAclId $defautlNacl.NetworkAclId -AssociationId $naclAssoc.NetworkAclAssociationId | Out-Null
-                                        }
-                                    }
+                            $subnetList = [list[string]]::new()
+                            $naclAssocs = $target.Associations
+                            $defautlNacl = Get-EC2NetworkAcl -Filter @(@{ Name = 'default'; Values = 'true' }; @{ Name = 'vpc-id'; Values = $target.VpcId })
+                            if ($naclAssocs) {
+                                foreach ($naclAssoc in $naclAssocs) {
+                                    Set-EC2NetworkAclAssociation -NetworkAclId $defautlNacl.NetworkAclId -AssociationId $naclAssoc.NetworkAclAssociationId | Out-Null
+                                    $subnetList.Add($naclAssoc.SubnetId)
                                 }
                             }
-                            Remove-EC2NetworkAcl -NetworkAclId $nacl.ResourceId -Confirm:$false | Out-Null
+                            Remove-EC2NetworkAcl -NetworkAclId $target.NetworkAclId -Confirm:$false | Out-Null
 
                             $ret.Add(
                                 [PSCustomObject]@{
                                     ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
                                     ResourceName = $target.Tags.Value
                                     ResourceId = $target.NetworkAclId
-                                    Detached = if ($naclAssocs) { $naclAssocs.SubnetId } else { $null }
-                                    Skipped = $null
+                                    Detached = if ($subnetList) { @($subnetList) } else { @{} }
+                                    Skipped = @{}
                                     Action = 'CleanUp'
                                 }
                             )
@@ -141,7 +139,8 @@ function Invoke-PasmCleanUp {
                     foreach ($pl in $prefixList) {
                         $target = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-id'; Values = $pl.ResourceId }
                         if ($null -ne $target) {
-                            $plAssocs = Get-EC2ManagedPrefixListAssociation -PrefixListId $pl.ResourceId
+                            $resourceList = [list[string]]::new()
+                            $plAssocs = Get-EC2ManagedPrefixListAssociation -PrefixListId $target.PrefixListId
                             if ($plAssocs) {               
                                 foreach ($plAssoc in $plAssocs) {
                                     if ($plAssoc.ResourceId -match '^sg-[0-9a-z]{17}$') {
@@ -155,13 +154,15 @@ function Invoke-PasmCleanUp {
                                             if ($egressEntry) {
                                                 Revoke-EC2SecurityGroupEgress -GroupId $plAssoc.ResourceId -IpPermission $egressEntry | Out-Null
                                             }
+                                            $resourceList.Add($plAssoc.ResourceId)
                                         }
                                     }
                                     if ($plAssoc.ResourceId -match '^rtb-[0-9a-z]{17}$') {
-                                        $targetRoute = Get-EC2RouteTable -Filter @{ Name = 'route.destination-prefix-list-id'; Values = $pl.ResourceId }
+                                        $targetRoute = Get-EC2RouteTable -Filter @{ Name = 'route.destination-prefix-list-id'; Values = $plAssoc.ResourceId }
                                         if ($targetRoute) {
-                                            foreach ($routeTableId in $targetRoute.RouteTableId) {
-                                                Remove-EC2Route -RouteTableId $routeTableId -DestinationPrefixListId $pl.ResourceId -Confirm:$false | Out-Null
+                                            foreach ($route in $targetRoute) {
+                                                Remove-EC2Route -RouteTableId $route.RouteTableId -DestinationPrefixListId $plAssoc.ResourceId -Confirm:$false | Out-Null
+                                                $resourceList.Add($plAssoc.ResourceId)
                                             }
                                         }
                                     }
@@ -174,8 +175,8 @@ function Invoke-PasmCleanUp {
                                     ResourceType = [Pasm.Parameter.Resource]::PrefixList
                                     ResourceName = $target.PrefixListName
                                     ResourceId = $target.PrefixListId
-                                    Detached = if ($plAssocs) { @($plAssocs.ResourceId) } else { $null }
-                                    Skipped = $null
+                                    Detached = if ($resourceList) { @($resourceList) } else { @{} }
+                                    Skipped = @{}
                                     Action = 'CleanUp'
                                 }
                             )
