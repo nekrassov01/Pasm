@@ -123,7 +123,7 @@ Resource:                           # required
             $isExistsVpcId = $PSBoundParameters.ContainsKey('VpcId')
             $isExistsSbnId = $PSBoundParameters.ContainsKey('SubnetId')
 
-            # Pattern match validation 'VpcId' and 'SubnetId'
+            # Validation 'VpcId' and 'SubnetId'
             if ($isExistsVpcId) {
                 Test-PasmVpcId -VpcId $VpcId | Out-Null
             }
