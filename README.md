@@ -182,14 +182,14 @@ ResourceType : NetworkAcl
 ResourceName : test-acl-01
 ResourceId   : acl-e1t2d3g4c5bryfhvn
 Detached     : {subnet-q1z2x3w4e5cvrtbny, subnet-w1x2c3e4r5vbtynmu}
-Skipped      :
+Skipped      : 
 Action       : CleanUp
 
 ResourceType : PrefixList
 ResourceName : test-pl-01
 ResourceId   : pl-a1d2s3f4d5gfhgjhk
 Detached     : {rtb-a1b2c3d4e5fghijkl, rtb-x1y2z3x4y5zxyzxyz, sg-1a2s3d4f5g6h7j890}
-Skipped      :
+Skipped      : 
 Action       : CleanUp
 ```
 

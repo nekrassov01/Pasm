@@ -92,8 +92,8 @@ function Invoke-PasmCleanUp {
                                     ResourceType = [Pasm.Parameter.Resource]::SecurityGroup
                                     ResourceName = $target.GroupName
                                     ResourceId = $target.GroupId
-                                    Detached = if ($detachedList) { @($detachedList) } else { @{} }
-                                    Skipped = if ($remainingList) { @($remainingList) } else { @{} }
+                                    Detached = if ($detachedList) { $detachedList } else { $null }
+                                    Skipped = if ($remainingList) { $remainingList } else { $null }
                                     Action = $action
                                 }
                             )
@@ -124,8 +124,8 @@ function Invoke-PasmCleanUp {
                                     ResourceType = [Pasm.Parameter.Resource]::NetworkAcl
                                     ResourceName = $target.Tags.Value
                                     ResourceId = $target.NetworkAclId
-                                    Detached = if ($subnetList) { @($subnetList) } else { @{} }
-                                    Skipped = @{}
+                                    Detached = if ($subnetList) { $subnetList } else { $null }
+                                    Skipped = $null
                                     Action = 'CleanUp'
                                 }
                             )
@@ -141,7 +141,7 @@ function Invoke-PasmCleanUp {
                         if ($null -ne $target) {
                             $resourceList = [list[string]]::new()
                             $plAssocs = Get-EC2ManagedPrefixListAssociation -PrefixListId $target.PrefixListId
-                            if ($plAssocs) {               
+                            if ($plAssocs) {       
                                 foreach ($plAssoc in $plAssocs) {
                                     if ($plAssoc.ResourceId -match '^sg-[0-9a-z]{17}$') {
                                         $targetSg = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $plAssoc.ResourceId }
@@ -158,10 +158,10 @@ function Invoke-PasmCleanUp {
                                         }
                                     }
                                     if ($plAssoc.ResourceId -match '^rtb-[0-9a-z]{17}$') {
-                                        $targetRoute = Get-EC2RouteTable -Filter @{ Name = 'route.destination-prefix-list-id'; Values = $plAssoc.ResourceId }
-                                        if ($targetRoute) {
-                                            foreach ($route in $targetRoute) {
-                                                Remove-EC2Route -RouteTableId $route.RouteTableId -DestinationPrefixListId $plAssoc.ResourceId -Confirm:$false | Out-Null
+                                        $targetRtb = Get-EC2RouteTable -Filter @{ Name = 'route.destination-prefix-list-id'; Values = $target.PrefixListId }
+                                        if ($targetRtb) {
+                                            foreach ($rtb in $targetRtb) {
+                                                Remove-EC2Route -RouteTableId $rtb.RouteTableId -DestinationPrefixListId $target.PrefixListId -Confirm:$false | Out-Null
                                                 $resourceList.Add($plAssoc.ResourceId)
                                             }
                                         }
@@ -175,8 +175,8 @@ function Invoke-PasmCleanUp {
                                     ResourceType = [Pasm.Parameter.Resource]::PrefixList
                                     ResourceName = $target.PrefixListName
                                     ResourceId = $target.PrefixListId
-                                    Detached = if ($resourceList) { @($resourceList) } else { @{} }
-                                    Skipped = @{}
+                                    Detached = if ($resourceList) { $resourceList } else { $null }
+                                    Skipped = $null
                                     Action = 'CleanUp'
                                 }
                             )
