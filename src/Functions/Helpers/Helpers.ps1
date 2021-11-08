@@ -255,10 +255,11 @@ function Test-PasmRegion {
 # Yaml template validation: 'VpcId'
 function Test-PasmVpcId {
     param (
-        [string]$VpcId
+        [string]$VpcId,
+        [string]$ProfileName = 'default'
     )
     try {
-        Get-EC2Vpc -VpcId $vpcId
+        Get-EC2Vpc -VpcId $vpcId -ProfileName $profileName
     }
     catch {
         throw [ItemNotFoundException]::new($('The VPC with Id ''{0}'' not found.' -f $vpcId))
@@ -268,11 +269,12 @@ function Test-PasmVpcId {
 # Yaml template validation: 'SubnetId'
 function Test-PasmSubnetId {
     param (
-        [string[]]$SubnetId
+        [string[]]$SubnetId,
+        [string]$ProfileName = 'default'
     )
     foreach ($id in $subnetId) {
         try {
-            Get-EC2Subnet -SubnetId $id
+            Get-EC2Subnet -SubnetId $id -ProfileName $profileName
         }
         catch {
             throw [ItemNotFoundException]::new($('The Subnet with Id ''{0}'' not found.' -f $id))

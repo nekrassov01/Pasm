@@ -238,13 +238,13 @@ InModuleScope 'Pasm' {
         Context 'InitializeWithTargetVpcParameter' {
             Context 'ExpectedToPass' {
                 It 'Initialize: VpcId' {
-                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force -WarningAction SilentlyContinue | Should -BeTrue
+                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force | Should -BeTrue
                 }
                 It 'Initialize: AssociationSubnetId' {
-                    Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                    Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
                 }
                 It 'Initialize: Both' {
-                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
                 }
                 It 'Blueprint' {
                     Invoke-PasmBlueprint -FilePath $($workingDirectory, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join $sepalator) -OutputFileName $('{0}.yml' -f [Pasm.Template.Name]::blueprint) | Should -BeTrue
@@ -252,13 +252,13 @@ InModuleScope 'Pasm' {
             }
             Context 'ExpectedToThrow' {
                 It 'Initialize: VpcId' {
-                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'Vpc-01234567891234567' -Force -WarningAction SilentlyContinue } | Should -Throw
+                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'Vpc-01234567891234567' -Force } | Should -Throw
                 }
                 It 'Initialize: AssociationSubnetId' {
-                    { Invoke-PasmInitialize -Path $path -Name $name -SubnetId 'subnet-01234567891234567', 'subnet-abcdefghijklmnopq!' -Force -WarningAction SilentlyContinue } | Should -Throw
+                    { Invoke-PasmInitialize -Path $path -Name $name -SubnetId 'subnet-01234567891234567', 'subnet-abcdefghijklmnopq!' -Force } | Should -Throw
                 }
                 It 'Initialize: Both' {
-                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'vpc-01234567891234567' -SubnetId 'subnet-01234567891234567', 'Subnet-abcdefghijklmnopq' -Force -WarningAction SilentlyContinue } | Should -Throw
+                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'vpc-01234567891234567' -SubnetId 'subnet-01234567891234567', 'Subnet-abcdefghijklmnopq' -Force } | Should -Throw
                 }
             }
         }
@@ -410,7 +410,7 @@ InModuleScope 'Pasm' {
             }
             Context 'ExpectedToPass' {
                 It 'Alias: psmi' {
-                    psmi -p $path -n $name -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                    psmi -p $path -n $name -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
                 }
                 It 'Alias: psmv' {
                     psmv -file $outlineFilePath | Should -BeTrue
