@@ -424,7 +424,10 @@ InModuleScope 'Pasm' {
             }
             Context 'ExpectedToPass' {
                 It 'Alias: psmi' {
+                    Set-AWSCredential -ProfileName 'default' -Scope Local
+                    Set-DefaultAWSRegion -Region 'ap-northeast-1' -Scope Local
                     psmi -p $path -n $name -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+                    Clear-AWSDefaultConfiguration -SkipProfileStore
                 }
                 It 'Alias: psmv' {
                     psmv -file $outlineFilePath | Should -BeTrue
