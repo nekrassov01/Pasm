@@ -123,20 +123,14 @@ Resource:                           # required
             $isExistsVpcId = $PSBoundParameters.ContainsKey('VpcId')
             $isExistsSbnId = $PSBoundParameters.ContainsKey('SubnetId')
 
-            # Pattern match validation 'VpcId' and 'SubnetId'
+            # Validation 'VpcId' and 'SubnetId'
             if ($isExistsVpcId) {
-                if ($vpcId -cnotmatch '^vpc-[0-9a-z]{17}$') {
-                    throw [InvalidOperationException]::new($('''{0}'' does not match a valid id pattern.' -f $vpcId))
-                }
+                Test-PasmVpcId -VpcId $VpcId | Out-Null
             }
             if ($isExistsSbnId) {
-                foreach ($id in $SubnetId) {
-                    if ($id -cnotmatch '^subnet-[0-9a-z]{17}$') {
-                        throw [InvalidOperationException]::new($('''{0}'' does not match a valid id pattern.' -f $id))
-                    }
-                }
+                Test-PasmSubnetId -SubnetId $SubnetId | Out-Null
             }
-
+            
             # If 'VpcId' or 'SubnetId' is passed from the parameter, it will overwrite the value in the sample template            
             if ($isExistsVpcId -or $isExistsSbnId) {
                 $yaml = ConvertFrom-Yaml -Yaml $content -Ordered           
@@ -157,7 +151,6 @@ Resource:                           # required
                     }
                 }
                 $content = $yaml | ConvertTo-Yaml
-                $PSCmdlet.WriteWarning('If you overwrite the ''VpcId'' or ''AssociationSubnetId'', be sure to run ''Invoke-PasmValidation'' to validate the template.')
             }
                 
             $baseDir = New-Item -Path $path -Name $name -ItemType Directory -Force

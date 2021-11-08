@@ -177,33 +177,7 @@ InModuleScope 'Pasm' {
             $script:path = [path]::GetDirectoryName($workingDirectory)
             $script:name = [path]::GetFileName($workingDirectory)
             $script:obj = New-PasmTestVpc
-        }
-        Context 'InitializeWithTargetVpcParameter' {
-            Context 'ExpectedToPass' {
-                It 'Initialize: VpcId' {
-                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force -WarningAction SilentlyContinue | Should -BeTrue
-                }
-                It 'Initialize: AssociationSubnetId' {
-                    Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
-                }
-                It 'Initialize: Both' {
-                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
-                }
-                It 'Blueprint' {
-                    Invoke-PasmBlueprint -FilePath $($workingDirectory, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join $sepalator) -OutputFileName $('{0}.yml' -f [Pasm.Template.Name]::blueprint) | Should -BeTrue
-                }
-            }
-            Context 'ExpectedToThrow' {
-                It 'Initialize: VpcId' {
-                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'Vpc-01234567891234567' -Force -WarningAction SilentlyContinue } | Should -Throw
-                }
-                It 'Initialize: AssociationSubnetId' {
-                    { Invoke-PasmInitialize -Path $path -Name $name -SubnetId 'subnet-01234567891234567', 'subnet-abcdefghijklmnopq!' -Force -WarningAction SilentlyContinue } | Should -Throw
-                }
-                It 'Initialize: Both' {
-                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'vpc-01234567891234567' -SubnetId 'subnet-01234567891234567', 'Subnet-abcdefghijklmnopq' -Force -WarningAction SilentlyContinue } | Should -Throw
-                }
-            }
+            Write-Output $obj
         }
         Context 'RunWithBasicTemplate1' {
             BeforeAll {
@@ -259,6 +233,47 @@ InModuleScope 'Pasm' {
             }
             AfterAll {
                 Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath
+            }
+        }
+        Context 'InitializeWithTargetVpcParameter' {
+            Context 'ExpectedToPass' {
+                BeforeEach {
+                    Set-AWSCredential -ProfileName 'default' -Scope Local
+                    Set-DefaultAWSRegion -Region 'ap-northeast-1' -Scope Local
+                }
+                It 'Initialize: VpcId' {
+                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force | Should -BeTrue
+                }
+                It 'Initialize: AssociationSubnetId' {
+                    Invoke-PasmInitialize -Path $path -Name $name -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+                }
+                It 'Initialize: Both' {
+                    Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -SubnetId $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+                }
+                It 'Blueprint' {
+                    Invoke-PasmBlueprint -FilePath $($workingDirectory, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join $sepalator) -OutputFileName $('{0}.yml' -f [Pasm.Template.Name]::blueprint) | Should -BeTrue
+                }
+                AfterEach {
+                    Clear-AWSDefaultConfiguration -SkipProfileStore
+                }
+            }
+            Context 'ExpectedToThrow' {
+                BeforeEach {
+                    Set-AWSCredential -ProfileName 'default' -Scope Local
+                    Set-DefaultAWSRegion -Region 'ap-northeast-1' -Scope Local
+                }
+                It 'Initialize: VpcId' {
+                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'Vpc-01234567891234567' -Force } | Should -Throw
+                }
+                It 'Initialize: AssociationSubnetId' {
+                    { Invoke-PasmInitialize -Path $path -Name $name -SubnetId 'subnet-01234567891234567', 'subnet-abcdefghijklmnopq!' -Force } | Should -Throw
+                }
+                It 'Initialize: Both' {
+                    { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'vpc-01234567891234567' -SubnetId 'subnet-01234567891234567', 'Subnet-abcdefghijklmnopq' -Force } | Should -Throw
+                }
+                AfterEach {
+                    Clear-AWSDefaultConfiguration -SkipProfileStore
+                }
             }
         }
         Context 'InvokeValidationError' {
@@ -409,7 +424,10 @@ InModuleScope 'Pasm' {
             }
             Context 'ExpectedToPass' {
                 It 'Alias: psmi' {
-                    psmi -p $path -n $name -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force -WarningAction SilentlyContinue | Should -BeTrue
+                    Set-AWSCredential -ProfileName 'default' -Scope Local
+                    Set-DefaultAWSRegion -Region 'ap-northeast-1' -Scope Local
+                    psmi -p $path -n $name -vpc $obj.VpcId -sbn $obj.SubnetId_A, $obj.SubnetId_C -Force | Should -BeTrue
+                    Clear-AWSDefaultConfiguration -SkipProfileStore
                 }
                 It 'Alias: psmv' {
                     psmv -file $outlineFilePath | Should -BeTrue
