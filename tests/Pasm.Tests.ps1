@@ -237,6 +237,10 @@ InModuleScope 'Pasm' {
         }
         Context 'InitializeWithTargetVpcParameter' {
             Context 'ExpectedToPass' {
+                BeforeEach {
+                    Set-AWSCredential -ProfileName 'default' -Scope Local
+                    Set-DefaultAWSRegion -Region 'ap-northeast-1' -Scope Local
+                }
                 It 'Initialize: VpcId' {
                     Invoke-PasmInitialize -Path $path -Name $name -VpcId $obj.VpcId -Force | Should -BeTrue
                 }
@@ -249,8 +253,15 @@ InModuleScope 'Pasm' {
                 It 'Blueprint' {
                     Invoke-PasmBlueprint -FilePath $($workingDirectory, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join $sepalator) -OutputFileName $('{0}.yml' -f [Pasm.Template.Name]::blueprint) | Should -BeTrue
                 }
+                AfterEach {
+                    Clear-AWSDefaultConfiguration -SkipProfileStore
+                }
             }
             Context 'ExpectedToThrow' {
+                BeforeEach {
+                    Set-AWSCredential -ProfileName 'default' -Scope Local
+                    Set-DefaultAWSRegion -Region 'ap-northeast-1' -Scope Local
+                }
                 It 'Initialize: VpcId' {
                     { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'Vpc-01234567891234567' -Force } | Should -Throw
                 }
@@ -259,6 +270,9 @@ InModuleScope 'Pasm' {
                 }
                 It 'Initialize: Both' {
                     { Invoke-PasmInitialize -Path $path -Name $name -VpcId 'vpc-01234567891234567' -SubnetId 'subnet-01234567891234567', 'Subnet-abcdefghijklmnopq' -Force } | Should -Throw
+                }
+                AfterEach {
+                    Clear-AWSDefaultConfiguration -SkipProfileStore
                 }
             }
         }
