@@ -50,9 +50,11 @@ function Invoke-PasmDeployment {
                 if ($resource.Contains('SecurityGroup')) {
                     foreach ($sg in $securityGroup) {
                         $target = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $sg.ResourceId }
+                        $evidence = Get-EC2SecurityGroup -Filter @{ Name = 'group-name'; Values = $sg.ResourceName }
                         $ipPermissions = New-PasmSecurityGroupEntry -Rule $sg.Rules
 
-                        if ($null -eq $target) {
+                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists.
+                        if ($null -eq $target -and $null -eq $evidence) {
                             $tags = @{ Key = 'Name'; Value = $sg.ResourceName }
                             $nameTag = [TagSpecification]::new()
                             $nameTag.ResourceType = 'security-group'
@@ -82,6 +84,10 @@ function Invoke-PasmDeployment {
                             )
                         }
                         else {
+                            if ($null -eq $target -and !($null -eq $evidence)) {
+                                $target = $evidence
+                            }
+
                             # Replacing entries
                             if ($sg.FlowDirection -eq 'Ingress') {
                                 if ($target.IpPermissions) {
@@ -116,8 +122,10 @@ function Invoke-PasmDeployment {
                 if ($resource.Contains('NetworkAcl')) {
                     foreach ($nacl in $networkAcl) {
                         $target = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
+                        $evidence = Get-EC2NetworkAcl -Filter @{ Name = 'tag:Name'; Values = $nacl.ResourceName }
 
-                        if ($null -eq $target) {
+                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists.
+                        if ($null -eq $target -and $null -eq $evidence) {
                             $tags = @{ Key = 'Name'; Value = $nacl.ResourceName }
                             $nameTag = [TagSpecification]::new()
                             $nameTag.ResourceType = 'network-acl'
@@ -142,6 +150,10 @@ function Invoke-PasmDeployment {
                             )
                         }
                         else {
+                            if ($null -eq $target -and !($null -eq $evidence)) {
+                                $target = $evidence
+                            }
+
                             $naclIngressRuleNumbers = $target.Entries.Where( { $_.Egress -eq $false -and $_.RuleNumber -ne 32767 } ).RuleNumber
                             $naclEgressRuleNumbers = $target.Entries.Where( { $_.Egress -eq $true -and $_.RuleNumber -ne 32767 } ).RuleNumber
 
@@ -176,9 +188,11 @@ function Invoke-PasmDeployment {
                 if ($resource.Contains('PrefixList')) {
                     foreach ($pl in $prefixList) {
                         $target = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-id'; Values = $pl.ResourceId }
+                        $evidence = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-name'; Values = $pl.ResourceName }
                         $entries = New-PasmPrefixListEntry -Rule $pl.Rules
 
-                        if ($null -eq $target) {
+                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists.
+                        if ($null -eq $target -and $null -eq $evidence) {
                             $tags = @{ Key = 'Name'; Value = $pl.ResourceName }
                             $nameTag = [TagSpecification]::new()
                             $nameTag.ResourceType = 'prefix-list'
@@ -207,6 +221,10 @@ function Invoke-PasmDeployment {
                             )
                         }
                         else {
+                            if ($null -eq $target -and !($null -eq $evidence)) {
+                                $target = $evidence
+                            }
+
                             $existingEntries = Get-EC2ManagedPrefixListEntry -PrefixListId $target.PrefixListId
 
                             # Create an list of entries removing from the prefix list
