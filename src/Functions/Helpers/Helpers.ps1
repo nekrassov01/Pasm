@@ -184,6 +184,7 @@ function Test-PasmFromTo {
     }
 }
 
+<#
 # Yaml template validation: boolean type
 function Test-PasmBoolean {
     param (
@@ -202,6 +203,7 @@ function Test-PasmBoolean {
         }
     }
 }
+#>
 
 # Yaml template validation: 'ProfileName'
 function Test-PasmProfileName {
@@ -286,10 +288,14 @@ function Test-PasmMaxEntry {
         [int]$Entry,
         [int]$MaxEntry,
         [Pasm.Parameter.IpFormat]$IpFormat,
-        [Pasm.Parameter.Resource]$ResourceType
+        [Pasm.Parameter.Resource]$ResourceType,
+        [Pasm.Parameter.EphemeralPort]$EphemeralPort = 'Default'
     )
     if ($ResourceType -eq [Pasm.Parameter.Resource]::NetworkAcl) {
         $targetMaxEntry = $maxEntry - 1
+        if ($ephemeralPort -eq 'Default') {
+            $targetMaxEntry = $targetMaxEntry - 2
+        }
     }
     else {
         $targetMaxEntry = $maxEntry
@@ -416,26 +422,53 @@ function New-PasmNetworkAclEntry {
                     if ($inputObject.Contains('FlowDirection')) {
                         if ($inputObject.FlowDirection -eq 'Ingress') {
                             $param.Add('Egress', $false)
-                            $boolEphemeralPort = $true
                         }
                         if ($inputObject.FlowDirection -eq 'Egress') {
                             $param.Add('Egress', $true)
-                            $boolEphemeralPort = $false
                         }
                     }
                     New-EC2NetworkAclEntry @param
-
-                    if ($range.EphemeralPort -eq $true) {
-                        $param.PortRange_From = 1024
-                        $param.PortRange_To = 65535
-                        $param.Egress = $boolEphemeralPort
-                        New-EC2NetworkAclEntry @param
-                    }
                 }
             }
         }
         else {
             return
+        }
+        if (!($inputObject.Contains('EphemeralPort')) -or (($inputObject.Contains('EphemeralPort')) -and ($inputObject.EphemeralPort -eq 'Default'))) {
+            $paramIpv4 = @{
+                NetworkAclId = $networkAcl.NetworkAclId
+                Protocol = 6
+                PortRange_From = 1024
+                PortRange_To = 65535
+                RuleAction = 'allow'
+                RuleNumber = 32765
+                CidrBlock = '0.0.0.0/0'
+                Egress = $null
+            }
+            $paramIpv6 = @{
+                NetworkAclId = $networkAcl.NetworkAclId
+                Protocol = 6
+                PortRange_From = 1024
+                PortRange_To = 65535
+                RuleAction = 'allow'
+                RuleNumber = 32766
+                Ipv6CidrBlock = '::/0'
+                Egress = $null
+            }
+            $paramIpv4.Egress = $false
+            New-EC2NetworkAclEntry @paramIpv4
+            $paramIpv6.Egress = $false
+            New-EC2NetworkAclEntry @paramIpv6
+            $paramIpv4.Protocol = -1
+            $paramIpv4.PortRange_From = $null
+            $paramIpv4.PortRange_To = $null
+            $paramIpv4.Egress = $true
+            New-EC2NetworkAclEntry @paramIpv4
+            $paramIpv6.Protocol = -1
+            $paramIpv6.PortRange_From = $null
+            $paramIpv6.PortRange_To = $null
+            $paramIpv6.Egress = $true
+            New-EC2NetworkAclEntry @paramIpv6
         }
         if ($inputObject.Contains('AssociationSubnetId')) {
             $filter = @{

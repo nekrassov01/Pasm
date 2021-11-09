@@ -103,7 +103,7 @@ function Invoke-PasmValidation {
                         Test-PasmRequiredKey  $nacl -Enum 'Pasm.RequiredParameter.NetworkAcl'
                         Test-PasmInvalidKey   $nacl -Enum 'Pasm.Parameter.NetworkAcl'
                         Test-PasmEmptyKey     $nacl -Enum 'Pasm.Parameter.NetworkAcl'
-                        Test-PasmScalarValue  $nacl -Key  'ResourceName', 'VpcId', 'MaxEntry', 'FlowDirection'
+                        Test-PasmScalarValue  $nacl -Key  'ResourceName', 'VpcId', 'MaxEntry', 'FlowDirection', 'EphemeralPort'
                         Test-PasmInvalidValue $nacl -Key  'FlowDirection'
                         Test-PasmRange        $nacl -Key  'MaxEntry' -Start 1 -End 20
 
@@ -123,11 +123,10 @@ function Invoke-PasmValidation {
                             Test-PasmRequiredKey  $naclRules -Enum 'Pasm.RequiredParameter.NetworkAclRules'
                             Test-PasmInvalidKey   $naclRules -Enum 'Pasm.Parameter.NetworkAclRules'
                             Test-PasmEmptyKey     $naclRules -Enum 'Pasm.Parameter.NetworkAclRules'
-                            Test-PasmScalarValue  $naclRules -Key  'Id', 'ServiceKey', 'Protocol', 'FromPort', 'ToPort', 'EphemeralPort'
+                            Test-PasmScalarValue  $naclRules -Key  'Id', 'ServiceKey', 'Protocol', 'FromPort', 'ToPort'
                             Test-PasmInvalidValue $naclRules -Key  'Protocol', 'IpFormat'
                             Test-PasmRange        $naclRules -Key  'FromPort', 'ToPort' -Start -1 -End 65535
                             Test-PasmFromTo       $naclRules -From 'FromPort' -To 'ToPort'
-                            Test-PasmBoolean      $naclRules -Key  'EphemeralPort'
                             Test-PasmServiceKey   $naclRules
                             Test-PasmRegion       $naclRules
 
