@@ -85,6 +85,7 @@ function Invoke-PasmCleanUp {
                             }
                             if ((!$eni) -or ($eni -and $eni.RequesterManaged -notcontains $true)) {
                                 Remove-EC2SecurityGroup -GroupId $target.GroupId -Confirm:$false | Out-Null
+                                $sg.ResourceId = 'cleaned'
                             }
 
                             $ret.Add(
@@ -118,6 +119,7 @@ function Invoke-PasmCleanUp {
                                 }
                             }
                             Remove-EC2NetworkAcl -NetworkAclId $target.NetworkAclId -Confirm:$false | Out-Null
+                            $nacl.ResourceId = 'cleaned'
 
                             $ret.Add(
                                 [PSCustomObject]@{
@@ -169,6 +171,7 @@ function Invoke-PasmCleanUp {
                                 }
                             }
                             Remove-EC2ManagedPrefixList -PrefixListId $pl.ResourceId -Confirm:$false | Out-Null
+                            $pl.ResourceId = 'cleaned'
 
                             $ret.Add(
                                 [PSCustomObject]@{
