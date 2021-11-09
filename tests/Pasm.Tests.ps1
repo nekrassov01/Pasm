@@ -384,12 +384,6 @@ InModuleScope 'Pasm' {
                     $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                     { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
                 }
-                It 'Sample: Bool' {
-                    $templateName = 'outline.error.sample.bool.yml'
-                    $templateFilePath = $PSScriptRoot, 'templates', $templateName -join $sepalator
-                    $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
-                    { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
-                }
                 It 'Sample: ServiceKey' {
                     $templateName = 'outline.error.sample.service-key.yml'
                     $templateFilePath = $PSScriptRoot, 'templates', $templateName -join $sepalator
