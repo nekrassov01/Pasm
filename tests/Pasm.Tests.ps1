@@ -384,8 +384,8 @@ InModuleScope 'Pasm' {
                     $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                     { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw
                 }
-                It 'Sample: Bool' {
-                    $templateName = 'outline.error.sample.bool.yml'
+                It 'Sample: EphemeralPort' {
+                    $templateName = 'outline.error.sample.ephemeral-port.yml'
                     $templateFilePath = $PSScriptRoot, 'templates', $templateName -join $sepalator
                     $outlineFilePath = (New-PasmTestTemplate $obj -TemplateFilePath $templateFilePath).FullName
                     { Invoke-PasmValidation -FilePath $outlineFilePath } | Should -Throw

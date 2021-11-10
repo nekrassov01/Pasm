@@ -166,6 +166,7 @@ function Invoke-PasmBlueprint {
                         $obj.IPv4Entry = $null
                         $obj.IPv6Entry = $null
                         $obj.FlowDirection = if ($nacl.Contains('FlowDirection')) { $nacl.FlowDirection } else { 'Ingress' }
+                        $obj.EphemeralPort = if ($nacl.Contains('EphemeralPort')) { $nacl.EphemeralPort } else { 'Default' }
 
                         if ($nacl.Contains('AssociationSubnetId')) {
                             $obj.AssociationSubnetId = $nacl.AssociationSubnetId
@@ -194,7 +195,6 @@ function Invoke-PasmBlueprint {
                                 $range.IpFormat = $r.IpAddressFormat
                                 $range.Region = $r.Region
                                 $range.RuleNumber = $ruleNumber
-                                $range.EphemeralPort = if ($rule.Contains('EphemeralPort')) { $rule.EphemeralPort } else { $true }
 
                                 $naclRangesContainer.Add($range)
                                 $ruleNumber = $ruleNumber + $interval

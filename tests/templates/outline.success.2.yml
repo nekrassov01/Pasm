@@ -62,6 +62,7 @@ Resource:
     VpcId: temp-vpc
     MaxEntry: 20
     FlowDirection: Ingress
+    EphemeralPort: Default
     RuleNumber:
       StartNumber: 100
       Interval: 10
@@ -78,7 +79,6 @@ Resource:
       Protocol: tcp
       FromPort: 80
       ToPort: 80
-      EphemeralPort: true
     - Id: 2
       ServiceKey: S3
       Region:
@@ -87,12 +87,12 @@ Resource:
       - IPv6
       Protocol: tcp
       FromPort: 443
-      ToPort: 443
-      EphemeralPort: true
+      ToPort: 443 
   - ResourceName: test-acl-02
     VpcId: temp-vpc
     MaxEntry: 20
     FlowDirection: Ingress
+    EphemeralPort: None
     RuleNumber:
       StartNumber: 100
       Interval: 10

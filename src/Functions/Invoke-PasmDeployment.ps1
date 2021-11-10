@@ -154,15 +154,19 @@ function Invoke-PasmDeployment {
                                 $target = $evidence
                             }
 
-                            $naclIngressRuleNumbers = $target.Entries.Where( { $_.Egress -eq $false -and $_.RuleNumber -ne 32767 } ).RuleNumber
-                            $naclEgressRuleNumbers = $target.Entries.Where( { $_.Egress -eq $true -and $_.RuleNumber -ne 32767 } ).RuleNumber
+                            $naclIngressRules = $target.Entries.Where( { $_.Egress -eq $false -and $_.RuleNumber -ne 32767 } )
+                            $naclEgressRules = $target.Entries.Where( { $_.Egress -eq $true -and $_.RuleNumber -ne 32767 } )
 
                             # Remove entries from the network acl
-                            foreach ($naclIngressRuleNumber in $naclIngressRuleNumbers) {
-                                Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclIngressRuleNumber -Egress $false -Confirm:$false | Out-Null
+                            if ($null -ne $naclIngressRules) {
+                                foreach ($naclIngressRule in $naclIngressRules) {
+                                    Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclIngressRule.RuleNumber -Egress $false -Confirm:$false | Out-Null
+                                }
                             }
-                            foreach ($naclEgressRuleNumber in $naclEgressRuleNumbers) {
-                                Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclEgressRuleNumber  -Egress $true  -Confirm:$false | Out-Null
+                            if ($null -ne $naclEgressRules) {
+                                foreach ($naclEgressRule in $naclEgressRules) {
+                                    Remove-EC2NetworkAclEntry -NetworkAclId $target.NetworkAclId -RuleNumber $naclEgressRule.RuleNumber  -Egress $true  -Confirm:$false | Out-Null
+                                }
                             }
 
                             # Add entries to the network acl

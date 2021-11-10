@@ -283,6 +283,7 @@ Resource:                           # required
     VpcId: vpc-00000000000000000    # required
     MaxEntry: 20                    # not-required - Range: 1-20
     FlowDirection: Ingress          # not-required - Enum: [Pasm.Parameter.FlowDirection]
+    EphemeralPort: Default          # not-required - Enum: [Pasm.Parameter.EphemeralPort]
     RuleNumber:                     # not-required
       StartNumber: 100              # not-required - Range: 1-32766
       Interval: 10                  # not-required - Range: 1-10
@@ -299,7 +300,6 @@ Resource:                           # required
       Protocol: tcp                 # required     - Enum: [Pasm.Parameter.Protocol]
       FromPort: 80                  # required     - Range: 0-65535
       ToPort: 80                    # required     - Range: 0-65535
-      EphemeralPort: true           # not-required - bool
     - Id: 2
       ServiceKey: S3
       Region:
@@ -309,7 +309,6 @@ Resource:                           # required
       Protocol: tcp
       FromPort: 443
       ToPort: 443
-      EphemeralPort: true
   PrefixList:                       # not-required - One of the following must be present: 'SecurityGroup','NetworkAcl', 'PrefixList'
   - ResourceName: test-pl-01        # required
     VpcId: vpc-00000000000000000    # required
