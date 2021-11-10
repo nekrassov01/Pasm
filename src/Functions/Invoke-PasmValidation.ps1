@@ -104,7 +104,7 @@ function Invoke-PasmValidation {
                         Test-PasmInvalidKey   $nacl -Enum 'Pasm.Parameter.NetworkAcl'
                         Test-PasmEmptyKey     $nacl -Enum 'Pasm.Parameter.NetworkAcl'
                         Test-PasmScalarValue  $nacl -Key  'ResourceName', 'VpcId', 'MaxEntry', 'FlowDirection', 'EphemeralPort'
-                        Test-PasmInvalidValue $nacl -Key  'FlowDirection'
+                        Test-PasmInvalidValue $nacl -Key  'FlowDirection', 'EphemeralPort'
                         Test-PasmRange        $nacl -Key  'MaxEntry' -Start 1 -End 20
 
                         if ($nacl.Contains('RuleNumber')) {

@@ -292,18 +292,15 @@ function Test-PasmMaxEntry {
         [Pasm.Parameter.EphemeralPort]$EphemeralPort = 'Default'
     )
     if ($ResourceType -eq [Pasm.Parameter.Resource]::NetworkAcl) {
-        $targetMaxEntry = $maxEntry - 1
+        $entry = $entry + 1
         if ($ephemeralPort -eq 'Default') {
-            $targetMaxEntry = $targetMaxEntry - 2
+            $entry = $entry + 2
         }
     }
-    else {
-        $targetMaxEntry = $maxEntry
-    }
-    if ($entry -ge $targetMaxEntry) {
+    if ($entry -ge $maxEntry) {
         throw [InvalidOperationException]::new(
             $(
-                'The maximum number of {0} entries({1}) for the ''{2}'' you are trying to configure exceeds the quota limit({3}). Please review your settings. This quota limit includes default entries.' -f
+                'The maximum number of {0} entries({1}) for the ''{2}'' you are trying to configure exceeds the quota limit({3}). Please review your settings. This entry number contains default entries.' -f
                 $ipFormat, $entry, $resourceType, $maxEntry
             )
         )
