@@ -51,7 +51,7 @@ Install-Module -Name Pasm -Scope CurrentUser
 
 ## Functions
 
-Pasm includes 5 functions.
+Pasm includes 6 functions.
 
 |Function|Description|
 |--|--|
