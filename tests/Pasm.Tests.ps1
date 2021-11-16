@@ -444,9 +444,9 @@ InModuleScope 'Pasm' {
                 It 'Alias: psmc' {
                     psmc -file $blueprintFilePath | Should -BeTrue
                 }
-                AfterAll {
-                    Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath
-                }
+            }
+            AfterAll {
+                Remove-PasmTestResource -BlueprintFilePath $blueprintFilePath
             }
         }
         AfterAll {
