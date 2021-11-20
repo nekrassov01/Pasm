@@ -168,7 +168,7 @@ function script:Remove-PasmTestVpc {
     Clear-AWSDefaultConfiguration -SkipProfileStore
 }
 
-Import-Module -Name $($PSScriptRoot, '..', 'src', 'Pasm.psm1' -join $sepalator) -Force
+Import-Module -Name $(Resolve-Path -LiteralPath $($PSScriptRoot, '..', 'src', 'Pasm.psm1' -join $sepalator)) -Force
 
 InModuleScope 'Pasm' {
     Describe 'UnitTest' {
