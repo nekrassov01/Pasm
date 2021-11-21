@@ -177,7 +177,6 @@ InModuleScope 'Pasm' {
             $script:path = [path]::GetDirectoryName($workingDirectory)
             $script:name = [path]::GetFileName($workingDirectory)
             $script:obj = New-PasmTestVpc
-            Write-Output $obj
         }
         Context 'RunWithBasicTemplate1' {
             BeforeAll {
@@ -450,7 +449,9 @@ InModuleScope 'Pasm' {
             }
         }
         AfterAll {
-            Remove-Item -LiteralPath $workingDirectory -Recurse -Force | Out-Null
+            if (Test-Path -LiteralPath $workingDirectory) {
+                Remove-Item -LiteralPath $workingDirectory -Recurse -Force | Out-Null
+            }
             Remove-PasmTestVpc $obj
         }
     }
