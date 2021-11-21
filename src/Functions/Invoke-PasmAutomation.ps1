@@ -10,7 +10,7 @@ function Invoke-PasmAutomation {
         [Alias('file')]
         [ValidateNotNullOrEmpty()]
         [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join [path]::DirectorySeparatorChar),
-        
+
         # Specify the output file name.
         [Parameter(Mandatory = $false)]
         [Alias('out')]
@@ -49,7 +49,7 @@ function Invoke-PasmAutomation {
         .DESCRIPTION
         Run the following in order: Invoke-PasmValidation, Invoke-PasmBlueprint, Invoke-PasmDeproyment.
         See the following source for details: https://github.com/nekrassov01/Pasm/blob/main/src/Functions/Invoke-PasmAutomation.ps1
-    
+
         .EXAMPLE
         # Default input file path: ${PWD}/outline.yml, default output file name: 'blueprint.yml'
         Invoke-PasmAutomation

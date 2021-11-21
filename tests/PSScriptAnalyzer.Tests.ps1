@@ -7,7 +7,7 @@ Describe 'Lint' {
         BeforeAll {
             $script:targetDir = $PSScriptRoot, '..', 'src', 'Functions' -join [path]::DirectorySeparatorChar
         }
-        It 'DefaultRules' {            
+        It 'DefaultRules' {
             Invoke-ScriptAnalyzer -Path $targetDir -Severity Error, Warning | Should -BeNullOrEmpty
         }
         It 'CodeFormatting' {

@@ -64,7 +64,7 @@ Resource:                           # required
       FromPort: 80                  # required     - Range: 0-65535
       ToPort: 80                    # required     - Range: 0-65535
     - Id: 2
-      ServiceKey: S3 
+      ServiceKey: S3
       Region:
       - ap-northeast-1
       IpFormat:
@@ -72,7 +72,7 @@ Resource:                           # required
       Protocol: tcp
       FromPort: 443
       ToPort: 443
-  NetworkAcl:                       # not-required - One of the following must be present: 'SecurityGroup','NetworkAcl', 'PrefixList' 
+  NetworkAcl:                       # not-required - One of the following must be present: 'SecurityGroup','NetworkAcl', 'PrefixList'
   - ResourceName: test-acl-01       # required
     VpcId: vpc-00000000000000000    # required
     MaxEntry: 20                    # not-required - Range: 1-20
@@ -129,10 +129,10 @@ Resource:                           # required
             if ($isExistsSbnId) {
                 Test-PasmSubnetId -SubnetId $SubnetId | Out-Null
             }
-            
-            # If 'VpcId' or 'SubnetId' is passed from the parameter, it will overwrite the value in the sample template            
+
+            # If 'VpcId' or 'SubnetId' is passed from the parameter, it will overwrite the value in the sample template
             if ($isExistsVpcId -or $isExistsSbnId) {
-                $yaml = ConvertFrom-Yaml -Yaml $content -Ordered           
+                $yaml = ConvertFrom-Yaml -Yaml $content -Ordered
                 if ($isExistsVpcId) {
                     foreach ($resource in 'SecurityGroup', 'NetworkAcl', 'PrefixList') {
                         foreach ($r in $yaml.Resource.$resource) {
@@ -151,7 +151,7 @@ Resource:                           # required
                 }
                 $content = $yaml | ConvertTo-Yaml
             }
-                
+
             $baseDir = New-Item -Path $path -Name $name -ItemType Directory -Force
             $fileName = '{0}.yml' -f [Pasm.Template.Name]::outline
             $outputFilePath = $baseDir.FullName, $fileName -join [path]::DirectorySeparatorChar
@@ -180,7 +180,7 @@ Resource:                           # required
         .DESCRIPTION
         Run the initialization process for using Pasm. It is also possible to create a Yaml template manually without using this script.
         See the following source for details: https://github.com/nekrassov01/Pasm/blob/main/src/Functions/Invoke-PasmInitialize.ps1
-    
+
         .EXAMPLE
         # Default directory name: 'Pasm'
         Invoke-PasmInitialize

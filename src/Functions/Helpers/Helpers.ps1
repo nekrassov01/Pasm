@@ -55,7 +55,7 @@ function Test-PasmRequiredKey {
         [string]$Enum = 'Pasm.RequiredParameter.Parent'
     )
     $member = [enum]::GetNames($enum)
-    $label = 
+    $label =
     if ($enum -eq 'Pasm.RequiredParameter.Parent') {
         'top-level'
     }
@@ -78,7 +78,7 @@ function Test-PasmInvalidKey {
         [string]$Enum = 'Pasm.Parameter.Parent'
     )
     $member = [enum]::GetNames($enum)
-    $label = 
+    $label =
     if ($enum -eq 'Pasm.Parameter.Parent') {
         'top-level'
     }
@@ -360,7 +360,7 @@ function New-PasmSecurityGroupEntry {
             $ipPermission.IpProtocol = $r.Protocol
             $ipPermission.FromPort = $r.FromPort
             $ipPermission.ToPort = $r.ToPort
-        
+
             if ($r.Protocol -in 'icmp', 'icmpv6') {
                 $ipPermission.FromPort = '-1'
                 $ipPermission.ToPort = '-1'
@@ -371,13 +371,13 @@ function New-PasmSecurityGroupEntry {
                     $ipv4Range = [IpRange]::new()
                     $ipv4Range.CidrIp = $range.IpPrefix
                     $ipv4Range.Description = $range.Description
-                    $ipPermission.Ipv4Ranges.Add($ipv4Range)                            
+                    $ipPermission.Ipv4Ranges.Add($ipv4Range)
                 }
                 if ($range.IpFormat -eq 'IPv6') {
                     $ipv6Range = [Ipv6Range]::new()
                     $ipv6Range.CidrIpv6 = $range.IpPrefix
                     $ipv6Range.Description = $range.Description
-                    $ipPermission.Ipv6Ranges.Add($ipv6Range)                            
+                    $ipPermission.Ipv6Ranges.Add($ipv6Range)
                 }
             }
             $ipPermissions.Add($ipPermission)

@@ -49,7 +49,7 @@ function script:Update-PasmTestTemplate {
     if ($template.Resource.Contains('SecurityGroup')) {
         foreach ($sg in $template.Resource.SecurityGroup) {
             if ($sg.Contains('VpcId')) {
-                $sg.VpcId = $inputObject.VpcId 
+                $sg.VpcId = $inputObject.VpcId
             }
         }
     }
@@ -79,7 +79,7 @@ function script:Update-PasmTestTemplate {
     if ($template.Resource.Contains('PrefixList')) {
         foreach ($pl in $template.Resource.PrefixList) {
             if ($pl.Contains('VpcId')) {
-                $pl.VpcId = $inputObject.VpcId 
+                $pl.VpcId = $inputObject.VpcId
             }
         }
     }
@@ -141,7 +141,7 @@ function script:Remove-PasmTestResource {
                 Remove-EC2ManagedPrefixList -PrefixListId $pl.ResourceId -Force -Confirm:$false
             }
         }
-    }         
+    }
 
     # Clear AWS default settings for this session
     Clear-AWSDefaultConfiguration -SkipProfileStore
