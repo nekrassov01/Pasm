@@ -12,7 +12,11 @@ function Invoke-PasmCleanUp {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('file')]
         [ValidateNotNullOrEmpty()]
-        [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::blueprint) -join [path]::DirectorySeparatorChar)
+        [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::blueprint) -join [path]::DirectorySeparatorChar),
+
+        # If the ResourceName matches even if the ResourceId does not, cleanup is performed.
+        [Parameter(Mandatory = $false)]
+        [switch]$Force
     )
 
     begin {
@@ -32,17 +36,17 @@ function Invoke-PasmCleanUp {
             foreach ($file in $filePath) {
                 # Load blueprint file
                 $obj = Import-PasmFile -FilePath $file -Ordered
-                
+
                 # Rresource variables
                 $resource = $obj.Resource
                 if ($resource.Contains('SecurityGroup')) { $securityGroup = $obj.Resource.SecurityGroup }
                 if ($resource.Contains('NetworkAcl')) { $networkAcl = $obj.Resource.NetworkAcl }
                 if ($resource.Contains('PrefixList')) { $prefixList = $obj.Resource.PrefixList }
-                
+
                 # Set AWS default settings for this session
                 Set-AWSCredential -ProfileName $obj.Common.ProfileName -Scope Local
                 Set-DefaultAWSRegion -Region $obj.Common.Region -Scope Local
-                
+
                 # Create result object list
                 $ret = [list[PSCustomObject]]::new()
 
@@ -51,12 +55,20 @@ function Invoke-PasmCleanUp {
                 if ($resource.Contains('SecurityGroup')) {
                     foreach ($sg in $securityGroup) {
                         $target = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $sg.ResourceId }
+
+                        if ($PSBoundParameters.ContainsKey('Force')) {
+                            $evidence = Get-EC2SecurityGroup -Filter @{ Name = 'group-name'; Values = $sg.ResourceName }
+                            if ($null -eq $target -and $null -ne $evidence) {
+                                $target = $evidence
+                            }
+                        }
+
                         if ($null -ne $target) {
                             $groupList = [list[string]]::new()
                             $detachedList = [list[string]]::new()
                             $remainingList = [list[string]]::new()
                             $action = 'CleanUp'
-                            
+
                             # Get the ENI to which the target security group is attached
                             $eni = Get-EC2NetworkInterface -Filter @{ Name = 'group-id'; Values = $target.GroupId }
                             if ($eni) {
@@ -83,6 +95,7 @@ function Invoke-PasmCleanUp {
                                     }
                                 }
                             }
+
                             if ((!$eni) -or ($eni -and $eni.RequesterManaged -notcontains $true)) {
                                 Remove-EC2SecurityGroup -GroupId $target.GroupId -Confirm:$false | Out-Null
                                 $sg.ResourceId = 'cleaned'
@@ -98,7 +111,6 @@ function Invoke-PasmCleanUp {
                                     Action = $action
                                 }
                             )
-
                         }
                     }
                 }
@@ -108,6 +120,14 @@ function Invoke-PasmCleanUp {
                 if ($resource.Contains('NetworkAcl')) {
                     foreach ($nacl in $networkAcl) {
                         $target = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
+
+                        if ($PSBoundParameters.ContainsKey('Force')) {
+                            $evidence = Get-EC2NetworkAcl -Filter @{ Name = 'tag:Name'; Values = $nacl.ResourceName }
+                            if ($null -eq $target -and $null -ne $evidence) {
+                                $target = $evidence
+                            }
+                        }
+
                         if ($null -ne $target) {
                             $subnetList = [list[string]]::new()
                             $naclAssocs = $target.Associations
@@ -140,10 +160,18 @@ function Invoke-PasmCleanUp {
                 if ($resource.Contains('PrefixList')) {
                     foreach ($pl in $prefixList) {
                         $target = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-id'; Values = $pl.ResourceId }
+
+                        if ($PSBoundParameters.ContainsKey('Force')) {
+                            $evidence = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-name'; Values = $pl.ResourceName }
+                            if ($null -eq $target -and $null -ne $evidence) {
+                                $target = $evidence
+                            }
+                        }
+
                         if ($null -ne $target) {
                             $resourceList = [list[string]]::new()
                             $plAssocs = Get-EC2ManagedPrefixListAssociation -PrefixListId $target.PrefixListId
-                            if ($plAssocs) {       
+                            if ($plAssocs) {
                                 foreach ($plAssoc in $plAssocs) {
                                     if ($plAssoc.ResourceId -match '^sg-[0-9a-z]{17}$') {
                                         $targetSg = Get-EC2SecurityGroup -Filter @{ Name = 'group-id'; Values = $plAssoc.ResourceId }
@@ -170,7 +198,7 @@ function Invoke-PasmCleanUp {
                                     }
                                 }
                             }
-                            Remove-EC2ManagedPrefixList -PrefixListId $pl.ResourceId -Confirm:$false | Out-Null
+                            Remove-EC2ManagedPrefixList -PrefixListId $target.PrefixListId -Confirm:$false | Out-Null
                             $pl.ResourceId = 'cleaned'
 
                             $ret.Add(
@@ -186,7 +214,7 @@ function Invoke-PasmCleanUp {
                         }
                     }
                 }
-                
+
                 # Update metadata section
                 if ($obj.Contains('MetaData')) {
                     $metadata = [ordered]@{}
@@ -200,13 +228,13 @@ function Invoke-PasmCleanUp {
                     $metadata.CleandAt = [datetime]::Now.ToUniversalTime()
                     $obj.MetaData = $metadata
                 }
-                
+
                 # Convert the object to Yaml format and overwrite the file
                 $obj | ConvertTo-Yaml -OutFile $file -Force
-                
+
                 # Return result list
                 $PSCmdlet.WriteObject($ret)
-            
+
                 # Clear AWS default settings for this session
                 Clear-AWSDefaultConfiguration -SkipProfileStore
             }
@@ -226,7 +254,7 @@ function Invoke-PasmCleanUp {
         .DESCRIPTION
         Clean up the deployed resources. Force detach of associated resources. Skip requester-managed ENIs, as they cannot be detached.
         See the following source for details: https://github.com/nekrassov01/Pasm/blob/main/src/Functions/Invoke-PasmCleanUp.ps1
-    
+
         .EXAMPLE
         # Default input file path: ${PWD}/blueprint.yml
         Invoke-PasmCleanUp
@@ -238,6 +266,10 @@ function Invoke-PasmCleanUp {
         .EXAMPLE
         # Loading multiple files from pipeline
         'C:/Pasm/blueprint-sg.yml', 'C:/Pasm/blueprint-nacl.yml', 'C:/Pasm/blueprint-pl.yml' | Invoke-PasmCleanUp
+
+        .EXAMPLE
+        # When the Force switch is enabled, even if the ResourceId does not match, if the ResourceName matches, cleanup will be performed
+        Invoke-PasmCleanUp -Force
 
         .LINK
         https://github.com/nekrassov01/Pasm

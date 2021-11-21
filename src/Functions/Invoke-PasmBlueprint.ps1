@@ -61,7 +61,7 @@ function Invoke-PasmBlueprint {
                 if ($update) {
                     $dest = Import-PasmFile -FilePath $outputFilePath -Ordered
                 }
-                
+
                 # Create metadata section
                 $metadata = [ordered]@{}
                 $metadata.UpdateNumber = if ($update) { [int]$dest.Metadata.UpdateNumber + 1 } else { 1 }
@@ -78,7 +78,7 @@ function Invoke-PasmBlueprint {
                 if ($resource.Contains('SecurityGroup')) { $securityGroup = $obj.Resource.SecurityGroup }
                 if ($resource.Contains('NetworkAcl')) { $networkAcl = $obj.Resource.NetworkAcl }
                 if ($resource.Contains('PrefixList')) { $prefixList = $obj.Resource.PrefixList }
-                
+
                 # Create outer container
                 $parent = [ordered]@{}
                 $parent.Common = $obj.Common
@@ -122,10 +122,10 @@ function Invoke-PasmBlueprint {
                                 $range.IpFormat = $r.IpAddressFormat
                                 $range.Region = $r.Region
                                 $range.Description = 'Service:{0} Region:{1} Published:{2} Created:{3} Updated:{4}' -f (
-                                    $rule.ServiceKey, 
-                                    $r.Region, 
-                                    $published.ToString($datetimeFormat), 
-                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString($datetimeFormat) } else { $now.ToString($datetimeFormat) }), 
+                                    $rule.ServiceKey,
+                                    $r.Region,
+                                    $published.ToString($datetimeFormat),
+                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString($datetimeFormat) } else { $now.ToString($datetimeFormat) }),
                                     $now.ToString($datetimeFormat)
                                 )
                                 $sgRangesContainer.Add($range)
@@ -157,7 +157,7 @@ function Invoke-PasmBlueprint {
                     # Multiple resource definitions are allowed, so process them one by one
                     foreach ($nacl in $networkAcl) {
                         $naclRulesContainer = [list[object]]::new()
-                        
+
                         $obj = [ordered]@{}
                         $obj.ResourceName = $nacl.ResourceName
                         $obj.ResourceId = if ($update) { $dest.Resource.NetworkAcl.ResourceId } else { 'not-deployed' }
@@ -214,7 +214,7 @@ function Invoke-PasmBlueprint {
                         Test-PasmMaxEntry -Entry $obj.IPv6Entry -MaxEntry $obj.MaxEntry -IpFormat 'IPv6' -ResourceType 'NetworkAcl'
 
                         $naclContainer.Add($obj)
-                    }                   
+                    }
                     $parent.Resource.NetworkAcl = $naclContainer
                 }
 
@@ -252,10 +252,10 @@ function Invoke-PasmBlueprint {
                                 $range.IpFormat = $r.IpAddressFormat
                                 $range.Region = $r.Region
                                 $range.Description = 'Service:{0} Region:{1} Published:{2} Created:{3} Updated:{4}' -f (
-                                    $rule.ServiceKey, 
-                                    $r.Region, 
-                                    $published.ToString($datetimeFormat), 
-                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString($datetimeFormat) } else { $now.ToString($datetimeFormat) }), 
+                                    $rule.ServiceKey,
+                                    $r.Region,
+                                    $published.ToString($datetimeFormat),
+                                    $(if ($update) { ([datetime]$dest.Metadata.CreatedAt).ToUniversalTime().ToString($datetimeFormat) } else { $now.ToString($datetimeFormat) }),
                                     $now.ToString($datetimeFormat)
                                 )
                                 $plRangesContainer.Add($range)
@@ -275,7 +275,7 @@ function Invoke-PasmBlueprint {
                         Test-PasmMaxEntry -Entry $obj.IPv6Entry -MaxEntry $obj.MaxEntry -IpFormat 'IPv6' -ResourceType 'PrefixList'
 
                         $plContainer.Add($obj)
-                    }                    
+                    }
                     $parent.Resource.PrefixList = $plContainer
                 }
 
@@ -305,7 +305,7 @@ function Invoke-PasmBlueprint {
         .DESCRIPTION
         Get the ip ranges from 'ip-ranges.json' as described in the Yaml template, and create a blueprint.
         See the following source for details: https://github.com/nekrassov01/Pasm/blob/main/src/Functions/Invoke-PasmBlueprint.ps1
-    
+
         .EXAMPLE
         # Default input file path: ${PWD}/outline.yml, default output file name: 'blueprint.yml'
         Invoke-PasmBlueprint
