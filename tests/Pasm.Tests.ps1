@@ -189,6 +189,9 @@ InModuleScope 'Pasm' {
                 It 'Validation' {
                     Invoke-PasmValidation -FilePath $outlineFilePath | Should -BeTrue
                 }
+                It 'Export' {
+                    Invoke-PasmExport -FilePath $outlineFilePath | Should -BeTrue
+                }
                 It 'Blueprint' {
                     Invoke-PasmBlueprint -FilePath $outlineFilePath -OutputFileName $blueprintFileName | Should -BeTrue
                 }
@@ -216,6 +219,9 @@ InModuleScope 'Pasm' {
             Context 'ExpectedToPass' {
                 It 'Validation' {
                     Invoke-PasmValidation -FilePath $outlineFilePath | Should -BeTrue
+                }
+                It 'Export' {
+                    Invoke-PasmExport -FilePath $outlineFilePath | Should -BeTrue
                 }
                 It 'Blueprint' {
                     Invoke-PasmBlueprint -FilePath $outlineFilePath -OutputFileName $blueprintFileName | Should -BeTrue

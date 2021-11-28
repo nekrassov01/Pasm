@@ -9,7 +9,12 @@ function Invoke-PasmValidation {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('file')]
         [ValidateNotNullOrEmpty()]
-        [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join [path]::DirectorySeparatorChar)
+        [string[]]$FilePath = $($PWD, $('{0}.yml' -f [Pasm.Template.Name]::outline) -join [path]::DirectorySeparatorChar),
+
+        # Skip validation of VpcId and SubnetId.
+        [Parameter(Mandatory = $false)]
+        [Alias('skip-id')]
+        [switch]$SkipIdValidation = $false
     )
 
     begin {
@@ -89,9 +94,11 @@ function Invoke-PasmValidation {
                             Out-PasmLogLine -Message $('Validation passed: SecurityGroup ''{0}'' Rules' -f $sg.ResourceName)
                         }
 
-                        if ($sg.Contains('VpcId')) {
-                            [void](Test-PasmVpcId -VpcId $sg.VpcId)
-                            Out-PasmLogLine -Message $('Validation passed: SecurityGroup ''{0}'' VpcId' -f $sg.ResourceName)
+                        if (!$PSBoundParameters.ContainsKey('SkipIdValidation')) {
+                            if ($sg.Contains('VpcId')) {
+                                [void](Test-PasmVpcId -VpcId $sg.VpcId)
+                                Out-PasmLogLine -Message $('Validation passed: SecurityGroup ''{0}'' VpcId' -f $sg.ResourceName)
+                            }
                         }
                     }
                 }
@@ -133,14 +140,16 @@ function Invoke-PasmValidation {
                             Out-PasmLogLine -Message $('Validation passed: NetworkAcl ''{0}'' Rules' -f $nacl.ResourceName)
                         }
 
-                        if ($nacl.Contains('VpcId')) {
-                            [void](Test-PasmVpcId -VpcId $nacl.VpcId)
-                            Out-PasmLogLine -Message $('Validation passed: NetworkAcl ''{0}'' VpcId' -f $nacl.ResourceName)
-                        }
+                        if (!$PSBoundParameters.ContainsKey('SkipIdValidation')) {
+                            if ($nacl.Contains('VpcId')) {
+                                [void](Test-PasmVpcId -VpcId $nacl.VpcId)
+                                Out-PasmLogLine -Message $('Validation passed: NetworkAcl ''{0}'' VpcId' -f $nacl.ResourceName)
+                            }
 
-                        if ($nacl.Contains('AssociationSubnetId')) {
-                            [void](Test-PasmSubnetId -SubnetId $nacl.AssociationSubnetId)
-                            Out-PasmLogLine -Message $('Validation passed: NetworkAcl ''{0}'' SubnetId' -f $nacl.ResourceName)
+                            if ($nacl.Contains('AssociationSubnetId')) {
+                                [void](Test-PasmSubnetId -SubnetId $nacl.AssociationSubnetId)
+                                Out-PasmLogLine -Message $('Validation passed: NetworkAcl ''{0}'' SubnetId' -f $nacl.ResourceName)
+                            }
                         }
                     }
                 }
@@ -170,9 +179,11 @@ function Invoke-PasmValidation {
                             Out-PasmLogLine -Message $('Validation passed: PrefixList ''{0}'' Rules' -f $pl.ResourceName)
                         }
 
-                        if ($pl.Contains('VpcId')) {
-                            [void](Test-PasmVpcId -VpcId $pl.VpcId)
-                            Out-PasmLogLine -Message $('Validation passed: PrefixList ''{0}'' VpcId' -f $pl.ResourceName)
+                        if (!$PSBoundParameters.ContainsKey('SkipIdValidation')) {
+                            if ($pl.Contains('VpcId')) {
+                                [void](Test-PasmVpcId -VpcId $pl.VpcId)
+                                Out-PasmLogLine -Message $('Validation passed: PrefixList ''{0}'' VpcId' -f $pl.ResourceName)
+                            }
                         }
                     }
                 }
