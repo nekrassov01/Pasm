@@ -2,7 +2,7 @@
 
 [![build](https://github.com/nekrassov01/Pasm/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/nekrassov01/Pasm/actions/workflows/build.yml)  [![release](https://github.com/nekrassov01/Pasm/actions/workflows/release.yml/badge.svg)](https://github.com/nekrassov01/Pasm/actions/workflows/release.yml)
 
-Pasm is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply following simple rules and creating YAML templates, you can keep up with IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.  
+Pasm is a PowerShell module for simple management of public IP address ranges provided by AWS. By simply following simple rules and creating YAML templates, you can keep up with IP range changes, deploy and synchronize resources. The currently supported resources are SecurityGroup, NetworkACL, and PrefixList.
 
 - [Pasm](#pasm)
   - [Compatible Editions](#compatible-editions)
@@ -16,6 +16,7 @@ Pasm is a PowerShell module for simple management of public IP address ranges pr
     - [Generating Blueprint](#generating-blueprint)
     - [Deployment](#deployment)
     - [Clean up](#clean-up)
+    - [Export to CSV](#export-to-csv)
   - [Same Thing, Shorter](#same-thing-shorter)
   - [Aliases](#aliases)
   - [Sample Template (outline.yml)](#sample-template-outlineyml)
@@ -33,7 +34,7 @@ Install the modules required to use Pasm.
 ```ps1
 Install-Module -Name PowerShell-Yaml, AWS.Tools.Installer -Scope CurrentUser
 Install-AWSToolsModule -Name AWS.Tools.Common, AWS.Tools.EC2 -Scope CurrentUser
-```  
+```
 
 Set the AWS credential.
 
@@ -61,6 +62,7 @@ Pasm includes 6 functions.
 |Invoke-PasmDeployment|Read the blueprint and deploy resources.|
 |Invoke-PasmAutomation|Run the following in order: `Invoke-PasmValidation`, `Invoke-PasmBlueprint`, and `Invoke-PasmDeployment`|
 |Invoke-PasmCleanUp|Clean up the deployed resources.|
+|Invoke-PasmExport|Based on the Yaml template, get the range of ip from [ip-ranges.json](https://ip-ranges.amazonaws.com/ip-ranges.json) and create a simple csv for external use.|
 
 ## Configuration Files
 
@@ -182,15 +184,23 @@ ResourceType : NetworkAcl
 ResourceName : test-acl-01
 ResourceId   : acl-e1t2d3g4c5bryfhvn
 Detached     : {subnet-q1z2x3w4e5cvrtbny, subnet-w1x2c3e4r5vbtynmu}
-Skipped      : 
+Skipped      :
 Action       : CleanUp
 
 ResourceType : PrefixList
 ResourceName : test-pl-01
 ResourceId   : pl-a1d2s3f4d5gfhgjhk
 Detached     : {rtb-a1b2c3d4e5fghijkl, rtb-x1y2z3x4y5zxyzxyz, sg-1a2s3d4f5g6h7j890}
-Skipped      : 
+Skipped      :
 Action       : CleanUp
+```
+
+### Export to CSV
+
+Output to simple CSV for external use.
+
+```ps1
+Invoke-PasmExport -FilePath output.csv
 ```
 
 ## Same Thing, Shorter
@@ -243,6 +253,11 @@ psma -file 'C:\Pasm\outline.yml' -out 'blueprint.yml'
 psmc -file 'C:\Pasm\blueprint.yml'
 ```
 
+```ps1
+# Invoke-PasmExport -FilePath 'C:\Pasm\outline.yml' -OutputFileName 'output.csv'
+psme -file 'C:\Pasm\outline.yml' -out 'output.csv'
+```
+
 ## Sample Template (outline.yml)
 
 'outline.yml' will be deployed with comments. Please overwrite it according to your environment.
@@ -270,7 +285,7 @@ Resource:                           # required
       FromPort: 80                  # required     - Range: 0-65535
       ToPort: 80                    # required     - Range: 0-65535
     - Id: 2
-      ServiceKey: S3 
+      ServiceKey: S3
       Region:
       - ap-northeast-1
       IpFormat:
@@ -278,7 +293,7 @@ Resource:                           # required
       Protocol: tcp
       FromPort: 443
       ToPort: 443
-  NetworkAcl:                       # not-required - One of the following must be present: 'SecurityGroup','NetworkAcl', 'PrefixList' 
+  NetworkAcl:                       # not-required - One of the following must be present: 'SecurityGroup','NetworkAcl', 'PrefixList'
   - ResourceName: test-acl-01       # required
     VpcId: vpc-00000000000000000    # required
     MaxEntry: 20                    # not-required - Range: 1-20
