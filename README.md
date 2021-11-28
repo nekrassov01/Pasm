@@ -200,7 +200,7 @@ Action       : CleanUp
 Output to simple CSV for external use.
 
 ```ps1
-Invoke-PasmExport -FilePath output.csv
+Invoke-PasmExport -FilePath outline.yml -OutputFileName output.csv
 ```
 
 ## Same Thing, Shorter
