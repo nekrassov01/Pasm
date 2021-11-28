@@ -39,7 +39,7 @@ namespace ${moduleName}.RequiredParameter
 namespace ${moduleName}.Template
 {
     // Yaml template default file name
-    public enum Name                { outline, blueprint }
+    public enum Name                { outline, blueprint, output }
 }
 "@
 
@@ -53,6 +53,7 @@ $map = @{
     'psmd' = 'Invoke-PasmDeployment'
     'psma' = 'Invoke-PasmAutomation'
     'psmc' = 'Invoke-PasmCleanUp'
+    'psme' = 'Invoke-PasmExport'
 }
 foreach ($m in $map.GetEnumerator()) {
     Set-Alias -Name $m.Key -Value $m.Value

@@ -134,7 +134,7 @@ Resource:                           # required
             if ($isExistsVpcId -or $isExistsSbnId) {
                 $yaml = ConvertFrom-Yaml -Yaml $content -Ordered
                 if ($isExistsVpcId) {
-                    foreach ($resource in 'SecurityGroup', 'NetworkAcl', 'PrefixList') {
+                    foreach ($resource in $([enum]::GetNames([Pasm.Parameter.Resource]))) {
                         foreach ($r in $yaml.Resource.$resource) {
                             if ($r.Contains('VpcId')) {
                                 $r.VpcId = $vpcId
