@@ -26,7 +26,7 @@ function Invoke-PasmBlueprint {
             # Load helper functions
             . $($PSScriptRoot, 'Helpers', 'Helpers.ps1' -join [path]::DirectorySeparatorChar)
 
-            # Implicitly run the validator process.
+            # Implicitly run the validator process
             Invoke-PasmValidation -FilePath $filePath | Out-Null
 
             # Datetime variables

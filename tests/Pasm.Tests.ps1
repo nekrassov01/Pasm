@@ -437,6 +437,9 @@ InModuleScope 'Pasm' {
                 It 'Alias: psmv' {
                     psmv -file $outlineFilePath | Should -BeTrue
                 }
+                It 'Alias: psme' {
+                    psme -file $outlineFilePath | Should -BeTrue
+                }
                 It 'Alias: psmb' {
                     psmb -file $outlineFilePath -out $blueprintFileName | Should -BeTrue
                 }

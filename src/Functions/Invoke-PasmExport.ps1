@@ -17,7 +17,6 @@ function Invoke-PasmExport {
         [Alias('out')]
         [ValidateNotNullOrEmpty()]
         [string[]]$OutputFileName = $('{0}.csv' -f [Pasm.Template.Name]::output)
-        #[string[]]$OutputFileName = 'output.csv'
     )
 
     begin {
@@ -27,7 +26,7 @@ function Invoke-PasmExport {
             # Load helper functions
             . $($PSScriptRoot, 'Helpers', 'Helpers.ps1' -join [path]::DirectorySeparatorChar)
 
-            # Implicitly run the validator process.
+            # Implicitly run the validator process
             Invoke-PasmValidation -FilePath $filePath -SkipIdValidation | Out-Null
 
             # Validation that the number of parameters match

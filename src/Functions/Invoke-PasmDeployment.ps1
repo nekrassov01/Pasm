@@ -53,7 +53,7 @@ function Invoke-PasmDeployment {
                         $evidence = Get-EC2SecurityGroup -Filter @{ Name = 'group-name'; Values = $sg.ResourceName }
                         $ipPermissions = New-PasmSecurityGroupEntry -Rule $sg.Rules
 
-                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists.
+                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists
                         if ($null -eq $target -and $null -eq $evidence) {
                             $tags = @{ Key = 'Name'; Value = $sg.ResourceName }
                             $nameTag = [TagSpecification]::new()
@@ -124,7 +124,7 @@ function Invoke-PasmDeployment {
                         $target = Get-EC2NetworkAcl -Filter @{ Name = 'network-acl-id'; Values = $nacl.ResourceId }
                         $evidence = Get-EC2NetworkAcl -Filter @{ Name = 'tag:Name'; Values = $nacl.ResourceName }
 
-                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists.
+                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists
                         if ($null -eq $target -and $null -eq $evidence) {
                             $tags = @{ Key = 'Name'; Value = $nacl.ResourceName }
                             $nameTag = [TagSpecification]::new()
@@ -195,7 +195,7 @@ function Invoke-PasmDeployment {
                         $evidence = Get-EC2ManagedPrefixList -Filter @{ Name = 'prefix-list-name'; Values = $pl.ResourceName }
                         $entries = New-PasmPrefixListEntry -Rule $pl.Rules
 
-                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists.
+                        # Even if there is no ID, if there is a name, it is considered to be a resource that already exists
                         if ($null -eq $target -and $null -eq $evidence) {
                             $tags = @{ Key = 'Name'; Value = $pl.ResourceName }
                             $nameTag = [TagSpecification]::new()
